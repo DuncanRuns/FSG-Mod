@@ -12,6 +12,7 @@ import java.nio.file.Path;
 public class FSGWrapperMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("fsg-wrapper-mod");
     public static final boolean usingWindows = Util.getOperatingSystem().equals(Util.OperatingSystem.WINDOWS);
+    public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-wrapper-mod").get().getMetadata().getVersion().getFriendlyString();
 
     public static String lastToken = null;
     public static int lastTokenHash = 0;

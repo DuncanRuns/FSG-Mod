@@ -14,6 +14,6 @@ public abstract class DebugHudMixin {
 
     @Inject(method = "getRightText", at = @At("RETURN"))
     private void avth(CallbackInfoReturnable<List<String>> info) {
-        info.getReturnValue().add("FSGWM " + FSGWrapperMod.getLastTokenHash());
+        info.getReturnValue().add(String.format("FSGWM v%s %d", FSGWrapperMod.VERSION, FSGWrapperMod.getLastTokenHash()));
     }
 }
