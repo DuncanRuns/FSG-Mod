@@ -33,7 +33,7 @@ public final class SeedManager {
     }
 
     private static void findInternal() {
-        if (findingSeed.get()) {
+        if (isFindingSeed()) {
             return;
         }
         findingSeed.set(true);
