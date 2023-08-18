@@ -9,6 +9,7 @@ public final class SeedManager {
     private static final AtomicBoolean seedExists = new AtomicBoolean(false);
     private static final AtomicBoolean failed = new AtomicBoolean(false);
     private static FSGFilterResult currentResult;
+    private static final Object LOCK = new Object();
 
     private SeedManager() {
     }
@@ -26,6 +27,12 @@ public final class SeedManager {
     }
 
     public static void find() {
+        synchronized (LOCK) {
+            findInternal();
+        }
+    }
+
+    private static void findInternal() {
         if (findingSeed.get()) {
             return;
         }
