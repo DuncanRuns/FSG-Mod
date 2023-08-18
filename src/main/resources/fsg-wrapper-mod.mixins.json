@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "me.duncanruns.fsgwrappermod.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "CreateWorldScreenMixin",
+    "DebugHudMixin",
+    "MinecraftClientMixin"
+  ],
+  "mixins": [
+    "CommandManagerMixin"
+  ]
+}

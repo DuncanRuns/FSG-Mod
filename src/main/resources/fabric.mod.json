@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "fsg-wrapper-mod",
+  "version": "${version}",
+  "name": "FSG Wrapper Mod",
+  "description": "A mod which overrides atum's seed to be generated from any FSG filter.",
+  "authors": [
+    "DuncanRuns"
+  ],
+  "license": "MIT",
+  "icon": "assets/fsg-wrapper-mod/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "me.duncanruns.fsgwrappermod.FSGWrapperMod"
+    ]
+  },
+  "mixins": [
+    "fsg-wrapper-mod.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "~1.16.1",
+    "atum": ">=1.1.3"
+  }
+}
