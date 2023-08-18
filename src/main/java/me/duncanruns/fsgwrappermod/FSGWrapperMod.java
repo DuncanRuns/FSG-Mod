@@ -50,7 +50,7 @@ public class FSGWrapperMod implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing");
         try {
-            lastToken = FileUtil.readString(getFsgTokenTxtPath());
+            setLastToken(FileUtil.readString(getFsgTokenTxtPath()));
         } catch (IOException ignored) {
         }
     }
