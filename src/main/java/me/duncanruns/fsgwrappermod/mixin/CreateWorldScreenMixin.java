@@ -33,7 +33,6 @@ public abstract class CreateWorldScreenMixin extends Screen {
         if (SeedManager.canTake()) {
             FSGFilterResult filterResult = SeedManager.take();
             FSGWrapperMod.setLastToken(filterResult.token);
-            SeedManager.find();
             Atum.seed = filterResult.seed;
         } else {
             SeedManager.find();

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FSGWrapperMod implements ModInitializer {
@@ -16,6 +17,8 @@ public class FSGWrapperMod implements ModInitializer {
 
     public static String lastToken = null;
     public static int lastTokenHash = 0;
+
+    private static boolean runInBackground = false;
 
     public static String getLastToken() {
         return lastToken;
@@ -30,12 +33,37 @@ public class FSGWrapperMod implements ModInitializer {
         }
     }
 
+    public static boolean shouldRunInBackground() {
+        return runInBackground;
+    }
+
+    public static boolean toggleRunInBackground() {
+        runInBackground = !runInBackground;
+        updateRunInBGFile();
+        return runInBackground;
+    }
+
+    private static void updateRunInBGFile() {
+        try {
+            if (runInBackground) {
+                FileUtil.writeString(getFsgBackgroundPath(), "");
+            } else {
+                Files.delete(getFsgBackgroundPath());
+            }
+        } catch (IOException ignored) {
+        }
+    }
+
     public static int getLastTokenHash() {
         return lastTokenHash;
     }
 
     private static Path getFsgTokenTxtPath() {
         return getFsgDir().resolve("fsgtoken.txt");
+    }
+
+    private static Path getFsgBackgroundPath() {
+        return getFsgDir().resolve("fsgwmfb");
     }
 
     public static Path getFsgDir() {
@@ -53,7 +81,6 @@ public class FSGWrapperMod implements ModInitializer {
             setLastToken(FileUtil.readString(getFsgTokenTxtPath()));
         } catch (IOException ignored) {
         }
+        runInBackground = Files.exists(getFsgBackgroundPath());
     }
-
-
 }
