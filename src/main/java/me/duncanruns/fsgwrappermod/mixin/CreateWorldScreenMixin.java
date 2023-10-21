@@ -36,6 +36,7 @@ public abstract class CreateWorldScreenMixin extends Screen {
             Atum.seed = filterResult.seed;
         } else {
             SeedManager.find();
+            Atum.hotkeyState = Atum.HotkeyState.PRE_WORLDGEN;
             client.openScreen(new FilteringScreen());
             info.cancel();
         }
