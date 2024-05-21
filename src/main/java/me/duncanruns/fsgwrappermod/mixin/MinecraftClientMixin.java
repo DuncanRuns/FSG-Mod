@@ -25,18 +25,11 @@ public abstract class MinecraftClientMixin {
     public abstract void openScreen(@Nullable Screen screen);
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void ensureFSGInstallationMixin(RunArgs args, CallbackInfo info) throws IOException {
+    private void ensureFSGInstallationMixin(RunArgs args, CallbackInfo info) {
         if (!Files.exists(FSGWrapperMod.getRunPath())) {
-            boolean seedbankIsPresent = Files.exists(FSGWrapperMod.getFsgDir().resolve("findSeed.py"));
+            boolean filterIsPresent = Files.exists(FSGWrapperMod.getRunPath());
 
-            if (seedbankIsPresent) {
-                Path fsgFolderPath = FSGWrapperMod.getFsgDir();
-                FileUtil.writeString(fsgFolderPath.resolve("run.bat"), "findSeed");
-                Path runShPath = fsgFolderPath.resolve("run.sh");
-                FileUtil.writeString(runShPath, "python3 findSeed.py");
-                runShPath.toFile().setExecutable(true);
-
-            } else {
+            if (!filterIsPresent) {
                 this.openScreen(new SuggestDownloadScreen());
             }
         }

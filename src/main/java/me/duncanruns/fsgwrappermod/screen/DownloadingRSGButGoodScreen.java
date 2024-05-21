@@ -17,26 +17,26 @@ import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class DownloadingSeedbankScreen extends Screen {
-    private static final String WINDOWS_SEEDBANK_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.win.zip";
-    private static final String LINUX_SEEDBANK_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.lin.zip";
-    private static final String MAC_SEEDBANK_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.mac.zip";
+public class DownloadingRSGButGoodScreen extends Screen {
+    private static final String WINDOWS_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.win.zip";
+    private static final String LINUX_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.lin.zip";
+    private static final String MAC_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.mac.zip";
     private boolean failed = false;
     private Thread thread = null;
     private String displayString = "";
 
-    public DownloadingSeedbankScreen() {
-        super(new LiteralText("Downloading Seedbank..."));
+    public DownloadingRSGButGoodScreen() {
+        super(new LiteralText("Downloading RSGButGood..."));
     }
 
     private static URL getDownloadURL() throws MalformedURLException {
         switch (FSGWrapperMod.OPERATING_SYSTEM) {
             case WINDOWS:
-                return new URL(WINDOWS_SEEDBANK_DOWNLOAD);
+                return new URL(WINDOWS_DOWNLOAD);
             case OSX:
-                return new URL(MAC_SEEDBANK_DOWNLOAD);
+                return new URL(MAC_DOWNLOAD);
             default:
-                return new URL(LINUX_SEEDBANK_DOWNLOAD);
+                return new URL(LINUX_DOWNLOAD);
         }
     }
 
@@ -89,15 +89,15 @@ public class DownloadingSeedbankScreen extends Screen {
 
         Path zipFilePath = FSGWrapperMod.getGameDir().resolve("rsgbutgood.zip");
 
-        File seedbankZipFile = zipFilePath.toFile();
-        if (!seedbankZipFile.isFile()) {
+        File zipFile = zipFilePath.toFile();
+        if (!zipFile.isFile()) {
             URL url = getDownloadURL();
             URLConnection connection = url.openConnection();
             connection.connect();
             displayString = "Downloading...";
             int bufferSize = 1024;
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(seedbankZipFile)) {
+                 FileOutputStream fileOutputStream = new FileOutputStream(zipFile)) {
                 byte[] dataBuffer = new byte[bufferSize];
                 int bytesRead;
                 while ((bytesRead = in.read(dataBuffer, 0, bufferSize)) != -1) {
@@ -115,7 +115,7 @@ public class DownloadingSeedbankScreen extends Screen {
         }
 
         unzip(zipFilePath, fsgFolderPath);
-        seedbankZipFile.delete();
+        zipFile.delete();
 
         if (!FSGWrapperMod.USING_WINDOWS) {
             FSGWrapperMod.getRunPath().toFile().setExecutable(true);
@@ -141,10 +141,10 @@ public class DownloadingSeedbankScreen extends Screen {
                 downloadAndMove();
             } catch (Exception e) {
                 failed = true;
-                FSGWrapperMod.LOGGER.error("Error while downloading seedbank!");
+                FSGWrapperMod.LOGGER.error("Error while downloading RSGButGood!");
                 FSGWrapperMod.LOGGER.error(e);
             }
-        }, "seedbank-download");
+        }, "rsgbutgood-download");
         thread.start();
     }
 
