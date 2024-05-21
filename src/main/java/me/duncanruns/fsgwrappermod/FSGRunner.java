@@ -1,8 +1,13 @@
 package me.duncanruns.fsgwrappermod;
 
+import net.minecraft.MinecraftVersion;
+import net.minecraft.util.Util;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,13 +21,7 @@ public final class FSGRunner {
     }
 
     public static FSGFilterResult runFilter() throws IOException, InterruptedException {
-        String command = FSGWrapperMod.getFsgDir().resolve("run").toString();
-
-        if (FSGWrapperMod.usingWindows) {
-            command += ".bat";
-        } else {
-            command += ".sh";
-        }
+        String command = FSGWrapperMod.getRunPath().toString();
 
         Process process = new ProcessBuilder(command).directory(FSGWrapperMod.getFsgDir().toFile()).start();
 

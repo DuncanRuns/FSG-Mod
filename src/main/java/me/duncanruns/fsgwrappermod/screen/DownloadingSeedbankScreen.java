@@ -1,26 +1,26 @@
 package me.duncanruns.fsgwrappermod.screen;
 
 import me.duncanruns.fsgwrappermod.FSGWrapperMod;
-import me.duncanruns.fsgwrappermod.FileUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.zip.ZipFile;
+import java.nio.file.StandardCopyOption;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class DownloadingSeedbankScreen extends Screen {
-    private static final String WINDOWS_SEEDBANK_DOWNLOAD = "https://github.com/pmaccamp/FSGOptimizedSeedBank/archive/refs/tags/v1.zip";
-    private static final String LINUX_SEEDBANK_DOWNLOAD = "https://github.com/Specnr/FSGOptimizedSeedBank/archive/refs/tags/v1.2.8.zip";
+    private static final String WINDOWS_SEEDBANK_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.win.zip";
+    private static final String LINUX_SEEDBANK_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.lin.zip";
+    private static final String MAC_SEEDBANK_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.mac.zip";
     private boolean failed = false;
     private Thread thread = null;
     private String displayString = "";
@@ -29,19 +29,72 @@ public class DownloadingSeedbankScreen extends Screen {
         super(new LiteralText("Downloading Seedbank..."));
     }
 
+    private static URL getDownloadURL() throws MalformedURLException {
+        switch (FSGWrapperMod.OPERATING_SYSTEM) {
+            case WINDOWS:
+                return new URL(WINDOWS_SEEDBANK_DOWNLOAD);
+            case OSX:
+                return new URL(MAC_SEEDBANK_DOWNLOAD);
+            default:
+                return new URL(LINUX_SEEDBANK_DOWNLOAD);
+        }
+    }
+
+    /**
+     * Extracts the contents of a zip file to a specified output directory.
+     *
+     * @param zipFilePath the path to the zip file
+     * @param outputDir   the path to the output directory
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    private static void unzip(Path zipFilePath, Path outputDir) throws IOException {
+        // Create the output directory if it does not exist
+        if (!Files.exists(outputDir)) {
+            Files.createDirectories(outputDir);
+        }
+
+        // Open the zip file input stream
+        try (InputStream fis = Files.newInputStream(zipFilePath);
+             ZipInputStream zis = new ZipInputStream(fis)) {
+
+            ZipEntry entry;
+            // Iterate through each entry in the zip file
+            while ((entry = zis.getNextEntry()) != null) {
+                // Resolve the entry path in the output directory
+                Path entryPath = outputDir.resolve(entry.getName());
+
+                if (entry.isDirectory()) {
+                    // If the entry is a directory, create the directory
+                    if (!Files.exists(entryPath)) {
+                        Files.createDirectories(entryPath);
+                    }
+                } else {
+                    // If the entry is a file, ensure the parent directories exist
+                    if (!Files.exists(entryPath.getParent())) {
+                        Files.createDirectories(entryPath.getParent());
+                    }
+
+                    // Copy the file from the zip stream to the output directory
+                    Files.copy(zis, entryPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                // Close the current entry in the zip stream
+                zis.closeEntry();
+            }
+        }
+    }
+
     private void downloadAndMove() throws IOException {
 
-        String zipFilePath = FSGWrapperMod.getGameDir().resolve("seedbank.zip").toString();
+        Path zipFilePath = FSGWrapperMod.getGameDir().resolve("rsgbutgood.zip");
 
-        File seedbankZipFile = new File(zipFilePath);
+        File seedbankZipFile = zipFilePath.toFile();
         if (!seedbankZipFile.isFile()) {
-            URL url = new URL(FSGWrapperMod.usingWindows ? WINDOWS_SEEDBANK_DOWNLOAD : LINUX_SEEDBANK_DOWNLOAD);
+            URL url = getDownloadURL();
             URLConnection connection = url.openConnection();
             connection.connect();
-            long fileSize = FSGWrapperMod.usingWindows ? 23_097_697 : 7_812_704; // connection.getContentLength() returns -1 :(
-            displayString = "0%";
-            long totalDownloaded = 0;
-            int i = 0;
+            displayString = "Downloading...";
             int bufferSize = 1024;
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(seedbankZipFile)) {
@@ -49,18 +102,11 @@ public class DownloadingSeedbankScreen extends Screen {
                 int bytesRead;
                 while ((bytesRead = in.read(dataBuffer, 0, bufferSize)) != -1) {
                     fileOutputStream.write(dataBuffer, 0, bytesRead);
-                    i += bytesRead;
-                    if (i >= fileSize / 100) {
-                        totalDownloaded += i;
-                        i = 0;
-                        displayString = (100 * totalDownloaded / fileSize) + "%";
-                    }
                 }
             }
         }
 
         String destDirPath = FSGWrapperMod.getFsgDir() + "/";
-        String subDirName = FSGWrapperMod.usingWindows ? "FSGOptimizedSeedBank-1" : "FSGOptimizedSeedBank-1.2.8";
 
         // Create the destination directory if it doesn't exist
         Path fsgFolderPath = Paths.get(destDirPath);
@@ -68,41 +114,12 @@ public class DownloadingSeedbankScreen extends Screen {
             Files.createDirectories(fsgFolderPath);
         }
 
-        // Open the zip file
-        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-            // Get the entries in the zip file
-            zipFile.stream()
-                    // Filter the entries to only include those in the subdirectory
-                    .filter(entry -> entry.getName().startsWith(subDirName + "/"))
-                    .forEach(entry -> {
-                        try {
-                            // Construct the destination path for the entry
-                            String destFilePath = destDirPath + entry.getName().substring(subDirName.length() + 1);
-                            Path destPath = Paths.get(destFilePath);
-
-                            // Create any necessary parent directories for the destination path
-                            Path parentPath = destPath.getParent();
-                            if (entry.isDirectory()) {
-                                Files.createDirectories(destPath.toAbsolutePath());
-                            } else if (parentPath != null) {
-                                Files.createDirectories(parentPath.toAbsolutePath());
-                            }
-
-                            // Extract the entry to the destination path
-                            Files.copy(zipFile.getInputStream(entry), destPath);
-                        } catch (IOException ignored) {
-                        }
-                    });
-        }
+        unzip(zipFilePath, fsgFolderPath);
         seedbankZipFile.delete();
 
-        FileUtil.writeString(fsgFolderPath.resolve("run.bat"), "findSeed");
-
-        if (!FSGWrapperMod.usingWindows) {
-            Path runShPath = fsgFolderPath.resolve("run.sh");
-            FileUtil.writeString(runShPath, "python3 findSeed.py");
-            runShPath.toFile().setExecutable(true);
-            runShPath.resolveSibling("bh").toFile().setExecutable(true);
+        if (!FSGWrapperMod.USING_WINDOWS) {
+            FSGWrapperMod.getRunPath().toFile().setExecutable(true);
+            FSGWrapperMod.getFsgDir().resolve("RSGButGood").toFile().setExecutable(true);
         }
     }
 

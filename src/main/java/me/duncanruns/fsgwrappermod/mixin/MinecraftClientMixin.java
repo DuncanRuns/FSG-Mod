@@ -26,7 +26,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void ensureFSGInstallationMixin(RunArgs args, CallbackInfo info) throws IOException {
-        if (!Files.exists(FSGWrapperMod.getFsgDir().resolve(FSGWrapperMod.usingWindows ? "run.bat" : "run.sh"))) {
+        if (!Files.exists(FSGWrapperMod.getRunPath())) {
             boolean seedbankIsPresent = Files.exists(FSGWrapperMod.getFsgDir().resolve("findSeed.py"));
 
             if (seedbankIsPresent) {

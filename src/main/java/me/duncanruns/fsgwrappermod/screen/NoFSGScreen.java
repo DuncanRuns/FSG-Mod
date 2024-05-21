@@ -14,7 +14,7 @@ public class NoFSGScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         renderBackground(matrices);
         this.drawCenteredString(matrices, this.textRenderer, "You don't have fsg setup!", width / 2, height / 3, 0xFFFFFF);
-        this.drawCenteredString(matrices, this.textRenderer, "Please create /fsg/run" + (FSGWrapperMod.usingWindows ? ".bat" : ".sh") + " with", width / 2, height / 3 + 20, 0xFFFFFF);
+        this.drawCenteredString(matrices, this.textRenderer, "Please create /fsg/run" + (FSGWrapperMod.USING_WINDOWS ? ".bat" : ".sh") + " with", width / 2, height / 3 + 20, 0xFFFFFF);
         this.drawCenteredString(matrices, this.textRenderer, "the command to run a filter.", width / 2, height / 3 + 40, 0xFFFFFF);
         super.render(matrices, mouseX, mouseY, delta);
     }
