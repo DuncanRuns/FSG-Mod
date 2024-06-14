@@ -4,7 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.MinecraftVersion;
 import net.minecraft.util.Util;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,7 +56,6 @@ public class FSGWrapperMod implements ModInitializer {
     }
 
     public static void logError(Throwable t) {
-        t = ExceptionUtils.getRootCause(t);
         LOGGER.error(t);
         for (StackTraceElement stackTraceElement : t.getStackTrace()) {
             LOGGER.error(stackTraceElement.toString());

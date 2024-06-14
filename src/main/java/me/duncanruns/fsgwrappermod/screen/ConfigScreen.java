@@ -7,6 +7,7 @@ import me.duncanruns.fsgwrappermod.FSGWrapperModConfig;
 import me.duncanruns.fsgwrappermod.FileUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -26,9 +27,10 @@ public class ConfigScreen extends Screen {
     private static final String WINDOWS_SEEDBANK_DOWNLOAD = "https://github.com/pmaccamp/FSGOptimizedSeedBank/archive/refs/tags/v1.zip";
     private static final String LINUX_SEEDBANK_DOWNLOAD = "https://github.com/Specnr/FSGOptimizedSeedBank/archive/refs/tags/v1.2.8.zip";
     private String installedFilterText;
+    private int y;
 
     public ConfigScreen() {
-        super(new LiteralText("FSG Wrapper Mod"));
+        super(new LiteralText("FSG Wrapper Mod Config"));
     }
 
     private static String getRSGButGoodDownload() throws IOException {
@@ -51,34 +53,32 @@ public class ConfigScreen extends Screen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         renderBackground(matrices);
-        int y = height / 3;
+        int y = 15;
         this.drawCenteredText(matrices, this.textRenderer, this.title, width / 2, y, 0xFFFFFF);
-        y += 40;
-        y += 40;
+        y += 60;
         this.drawCenteredString(matrices, this.textRenderer, installedFilterText, width / 2, y, 0xFFFFFF);
-        y += 10;
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     @Override
     public void init(MinecraftClient client, int width, int height) {
         super.init(client, width, height);
-        int y = height / 3;
-        y += 40;
+        y = 15;
+        y += 60;
+        if (Files.isDirectory(FSGWrapperMod.getFsgDir())) {
+            initFilterInstalled(client, width);
+        } else {
+            initFilterNotInstalled(client, width);
+        }
+        y += 60;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, getBackgroundFilterText(), b -> {
             FSGWrapperMod.toggleRunInBackground();
             b.setMessage(getBackgroundFilterText());
         }));
-        y += 40;
-        if (Files.isDirectory(FSGWrapperMod.getFsgDir())) {
-            initFilterInstalled(client, width, y);
-        } else {
-            initFilterNotInstalled(client, width, y);
-        }
-        //
+        this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.DONE, buttonWidget -> this.client.openScreen(null)));
     }
 
-    private void initFilterInstalled(MinecraftClient client, int width, int y) {
+    private void initFilterInstalled(MinecraftClient client, int width) {
         installedFilterText = "Installed Filter: " + FSGWrapperModConfig.getInstance().installedFilter;
         y += 10;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Configure Filter (Open Folder)"), b -> Util.getOperatingSystem().open(FSGWrapperMod.getFsgDir().toFile())));
@@ -93,7 +93,7 @@ public class ConfigScreen extends Screen {
         }));
     }
 
-    private void initFilterNotInstalled(MinecraftClient client, int width, int y) {
+    private void initFilterNotInstalled(MinecraftClient client, int width) {
         Util.OperatingSystem os = Util.getOperatingSystem();
         installedFilterText = "No filter installed!";
         y += 10;
