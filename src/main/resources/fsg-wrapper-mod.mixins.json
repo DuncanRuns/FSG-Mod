@@ -8,7 +8,8 @@
   "client": [
     "CreateWorldScreenMixin",
     "DebugHudMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "TitleScreenMixin"
   ],
   "mixins": [
     "CommandManagerMixin"

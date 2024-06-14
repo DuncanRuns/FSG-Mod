@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.MinecraftVersion;
 import net.minecraft.util.Util;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,55 +18,26 @@ public class FSGWrapperMod implements ModInitializer {
     public static final boolean USING_WINDOWS = OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS);
     public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-wrapper-mod").get().getMetadata().getVersion().getFriendlyString();
 
-    public static String lastToken = null;
     public static int lastTokenHash = 0;
 
-    private static boolean runInBackground = false;
-
     public static String getLastToken() {
-        return lastToken;
+        return FSGWrapperModConfig.getInstance().lastToken;
     }
 
     public static void setLastToken(String lastToken) {
-        FSGWrapperMod.lastToken = lastToken;
-        FSGWrapperMod.lastTokenHash = lastToken.hashCode();
-        try {
-            FileUtil.writeString(getFsgTokenTxtPath(), lastToken);
-        } catch (IOException ignored) {
-        }
+        FSGWrapperModConfig.getInstance().lastToken = lastToken;
+        lastTokenHash = lastToken.hashCode();
+        FSGWrapperModConfig.trySave();
     }
 
     public static boolean shouldRunInBackground() {
-        return runInBackground;
+        return FSGWrapperModConfig.getInstance().runInBackground;
     }
 
     public static boolean toggleRunInBackground() {
-        runInBackground = !runInBackground;
-        updateRunInBGFile();
-        return runInBackground;
-    }
-
-    private static void updateRunInBGFile() {
-        try {
-            if (runInBackground) {
-                FileUtil.writeString(getFsgBackgroundPath(), "");
-            } else {
-                Files.delete(getFsgBackgroundPath());
-            }
-        } catch (IOException ignored) {
-        }
-    }
-
-    public static int getLastTokenHash() {
-        return lastTokenHash;
-    }
-
-    private static Path getFsgTokenTxtPath() {
-        return getFsgDir().resolve("fsgtoken.txt");
-    }
-
-    private static Path getFsgBackgroundPath() {
-        return getFsgDir().resolve("fsgwmfb");
+        FSGWrapperModConfig.getInstance().runInBackground = !FSGWrapperModConfig.getInstance().runInBackground;
+        FSGWrapperModConfig.trySave();
+        return FSGWrapperModConfig.getInstance().runInBackground;
     }
 
     public static Path getFsgDir() {
@@ -84,13 +56,21 @@ public class FSGWrapperMod implements ModInitializer {
         return FSGWrapperMod.getFsgDir().resolve("run" + (FSGWrapperMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
     }
 
+    public static void logError(Throwable t) {
+        t = ExceptionUtils.getRootCause(t);
+        LOGGER.error(t);
+        for (StackTraceElement stackTraceElement : t.getStackTrace()) {
+            LOGGER.error(stackTraceElement.toString());
+        }
+    }
+
+    public static void setAllInFolderExecutable() throws IOException {
+        Files.walk(getFsgDir()).filter(Files::isRegularFile).forEach(path -> path.toFile().setExecutable(true));
+    }
+
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing");
-        try {
-            setLastToken(FileUtil.readString(getFsgTokenTxtPath()));
-        } catch (IOException ignored) {
-        }
-        runInBackground = Files.exists(getFsgBackgroundPath());
+        FSGWrapperModConfig.tryLoad();
     }
 }

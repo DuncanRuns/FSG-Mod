@@ -16,4 +16,9 @@ public class DownloadFailedScreen extends Screen {
         this.drawCenteredString(matrices, this.textRenderer, "Please close Minecraft and report the error in the log.", width / 2, height / 3 + 20, 0xFFFFFF);
         super.render(matrices, mouseX, mouseY, delta);
     }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
 }

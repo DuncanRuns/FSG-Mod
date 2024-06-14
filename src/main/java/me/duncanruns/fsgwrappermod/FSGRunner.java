@@ -1,13 +1,8 @@
 package me.duncanruns.fsgwrappermod;
 
-import net.minecraft.MinecraftVersion;
-import net.minecraft.util.Util;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

@@ -2,42 +2,39 @@ package me.duncanruns.fsgwrappermod.screen;
 
 import me.duncanruns.fsgwrappermod.FSGWrapperMod;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class DownloadingRSGButGoodScreen extends Screen {
-    private static final String WINDOWS_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.win.zip";
-    private static final String LINUX_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.lin.zip";
-    private static final String MAC_DOWNLOAD = "https://github.com/DuncanRuns/RSGButGood/releases/download/alpha.4/RSGButGood.alpha.4.mac.zip";
+public class DownloadingScreen extends Screen {
     private boolean failed = false;
     private Thread thread = null;
-    private String displayString = "";
+    private int totalBytesRead = 0;
+    private final URL downloadURL;
+    private final Screen screenOnCompletion;
+    private final Runnable runOnCompletion;
 
-    public DownloadingRSGButGoodScreen() {
-        super(new LiteralText("Downloading RSGButGood..."));
+    public DownloadingScreen(URL downloadURL, Screen screenOnCompletion) {
+        this(downloadURL, screenOnCompletion, () -> {
+        });
     }
 
-    private static URL getDownloadURL() throws MalformedURLException {
-        switch (FSGWrapperMod.OPERATING_SYSTEM) {
-            case WINDOWS:
-                return new URL(WINDOWS_DOWNLOAD);
-            case OSX:
-                return new URL(MAC_DOWNLOAD);
-            default:
-                return new URL(LINUX_DOWNLOAD);
-        }
+    public DownloadingScreen(URL downloadURL, Screen screenOnCompletion, Runnable runOnCompletion) {
+        super(new LiteralText("Filter Download"));
+        this.downloadURL = downloadURL;
+        this.screenOnCompletion = screenOnCompletion;
+        this.runOnCompletion = runOnCompletion;
     }
 
     /**
@@ -86,22 +83,18 @@ public class DownloadingRSGButGoodScreen extends Screen {
     }
 
     private void downloadAndMove() throws IOException {
-
-        Path zipFilePath = FSGWrapperMod.getGameDir().resolve("rsgbutgood.zip");
+        Path zipFilePath = FSGWrapperMod.getGameDir().resolve("downloaded.zip");
 
         File zipFile = zipFilePath.toFile();
         if (!zipFile.isFile()) {
-            URL url = getDownloadURL();
-            URLConnection connection = url.openConnection();
-            connection.connect();
-            displayString = "Downloading...";
             int bufferSize = 1024;
-            try (BufferedInputStream in = new BufferedInputStream(url.openStream());
+            try (BufferedInputStream in = new BufferedInputStream(downloadURL.openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(zipFile)) {
                 byte[] dataBuffer = new byte[bufferSize];
                 int bytesRead;
                 while ((bytesRead = in.read(dataBuffer, 0, bufferSize)) != -1) {
                     fileOutputStream.write(dataBuffer, 0, bytesRead);
+                    totalBytesRead += bytesRead;
                 }
             }
         }
@@ -116,10 +109,27 @@ public class DownloadingRSGButGoodScreen extends Screen {
 
         unzip(zipFilePath, fsgFolderPath);
         zipFile.delete();
+        // Elevate folders
+        List<Path> files;
+        while ((files = Files.list(FSGWrapperMod.getFsgDir()).collect(Collectors.toList())).size() == 1 && Files.isDirectory(files.get(0))) {
+            File temp = FSGWrapperMod.getFsgDir().resolveSibling("fsg-temp").toFile();
+            FileUtils.moveDirectory(files.get(0).toFile(), temp);
+            FileUtils.deleteDirectory(FSGWrapperMod.getFsgDir().toFile());
+            FileUtils.moveDirectory(temp, FSGWrapperMod.getFsgDir().toFile());
+            FileUtils.deleteDirectory(temp);
+
+        }
 
         if (!FSGWrapperMod.USING_WINDOWS) {
-            FSGWrapperMod.getRunPath().toFile().setExecutable(true);
-            FSGWrapperMod.getFsgDir().resolve("RSGButGood").toFile().setExecutable(true);
+            FSGWrapperMod.setAllInFolderExecutable();
+        }
+    }
+
+    private String getDisplay() {
+        if (totalBytesRead == 0) {
+            return "Starting download...";
+        } else {
+            return String.format("Downloading (%d)...", totalBytesRead);
         }
     }
 
@@ -127,8 +137,13 @@ public class DownloadingRSGButGoodScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         renderBackground(matrices);
         this.drawCenteredText(matrices, this.textRenderer, this.title, width / 2, height / 3, 0xFFFFFF);
-        this.drawCenteredString(matrices, this.textRenderer, displayString, width / 2, height / 2, 0xFFFFFF);
+        this.drawCenteredString(matrices, this.textRenderer, getDisplay(), width / 2, height / 2, 0xFFFFFF);
         super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
     }
 
     @Override
@@ -139,12 +154,13 @@ public class DownloadingRSGButGoodScreen extends Screen {
         thread = new Thread(() -> {
             try {
                 downloadAndMove();
+                runOnCompletion.run();
             } catch (Exception e) {
                 failed = true;
-                FSGWrapperMod.LOGGER.error("Error while downloading RSGButGood!");
-                FSGWrapperMod.LOGGER.error(e);
+                FSGWrapperMod.LOGGER.error("Error while downloading!");
+                FSGWrapperMod.logError(e);
             }
-        }, "rsgbutgood-download");
+        }, "fsg-download");
         thread.start();
     }
 
@@ -161,8 +177,7 @@ public class DownloadingRSGButGoodScreen extends Screen {
         if (failed) {
             client.openScreen(new DownloadFailedScreen());
         } else {
-            client.openScreen(new TitleScreen());
+            client.openScreen(screenOnCompletion);
         }
     }
-
 }
