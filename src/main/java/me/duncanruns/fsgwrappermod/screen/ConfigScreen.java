@@ -86,6 +86,7 @@ public class ConfigScreen extends Screen {
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
             try {
                 FileUtils.deleteDirectory(FSGWrapperMod.getFsgDir().toFile());
+                FSGWrapperModConfig.getInstance().installedFilter = "Unknown Filter";
             } catch (IOException e) {
                 FSGWrapperMod.logError(e);
             }
