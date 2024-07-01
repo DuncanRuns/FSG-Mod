@@ -1,0 +1,27 @@
+{
+  "filters": [
+    {
+      "name": "ZigSeedGlitchless",
+      "supports": [
+        "1.15.2",
+        "1.16.1"
+      ],
+      "version": "0.0.6",
+      "download": {
+        "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v0.0.6/ZigSeedGlitchless.v0.0.6.win.zip",
+        "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v0.0.6/ZigSeedGlitchless.v0.0.6.lin.zip",
+        "mac": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v0.0.6/ZigSeedGlitchless.v0.0.6.mac.zip"
+      }
+    },
+    {
+      "name": "Seedbank FSG",
+      "supports": [
+        "1.16.1"
+      ],
+      "download": {
+        "win": "https://github.com/pmaccamp/FSGOptimizedSeedBank/archive/refs/tags/v1.zip",
+        "lin": "https://github.com/Specnr/FSGOptimizedSeedBank/archive/refs/tags/v1.2.8.zip"
+      }
+    }
+  ]
+}
