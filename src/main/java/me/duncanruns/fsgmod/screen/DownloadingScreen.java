@@ -25,11 +25,6 @@ public class DownloadingScreen extends Screen {
     private final Screen screenOnCompletion;
     private final Runnable runOnCompletion;
 
-    public DownloadingScreen(URL downloadURL, Screen screenOnCompletion) {
-        this(downloadURL, screenOnCompletion, () -> {
-        });
-    }
-
     public DownloadingScreen(URL downloadURL, Screen screenOnCompletion, Runnable runOnCompletion) {
         super(new LiteralText("Filter Download"));
         this.downloadURL = downloadURL;

@@ -66,6 +66,17 @@ public class FSGMod implements ModInitializer {
         Files.walk(getFsgDir()).filter(Files::isRegularFile).forEach(path -> path.toFile().setExecutable(true));
     }
 
+    public static String getOS3LetterCode() {
+        switch (Util.getOperatingSystem()) {
+            case WINDOWS:
+                return "win";
+            case OSX:
+                return "mac";
+            default:
+                return "lin";
+        }
+    }
+
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing");
