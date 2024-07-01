@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.FileUtil;
+import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -34,8 +35,7 @@ public class ConfigScreen extends Screen {
     }
 
     private static String getRSGButGoodDownload() throws IOException {
-        BufferedInputStream s = new BufferedInputStream(new URL("https://raw.githubusercontent.com/DuncanRuns/RSGButGood/main/latest.json").openStream());
-        JsonObject jsonObject = new Gson().fromJson(IOUtils.toString(s, StandardCharsets.UTF_8), JsonObject.class);
+        JsonObject jsonObject = GrabUtil.grabJson("https://raw.githubusercontent.com/DuncanRuns/RSGButGood/main/latest.json");
         switch (Util.getOperatingSystem()) {
             case WINDOWS:
                 return jsonObject.get("win").getAsString();
