@@ -112,11 +112,6 @@ public class DownloadingScreen extends Screen {
             FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
             FileUtils.moveDirectory(temp, FSGMod.getFsgDir().toFile());
             FileUtils.deleteDirectory(temp);
-
-        }
-
-        if (!FSGMod.USING_WINDOWS) {
-            FSGMod.setAllInFolderExecutable();
         }
     }
 
