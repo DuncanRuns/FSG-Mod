@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -11,32 +11,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FSGWrapperMod implements ModInitializer {
-    public static final Logger LOGGER = LogManager.getLogger("fsg-wrapper-mod");
+public class FSGMod implements ModInitializer {
+    public static final Logger LOGGER = LogManager.getLogger("fsg-mod");
     public static final Util.OperatingSystem OPERATING_SYSTEM = Util.getOperatingSystem();
     public static final boolean USING_WINDOWS = OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS);
-    public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-wrapper-mod").get().getMetadata().getVersion().getFriendlyString();
+    public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-mod").get().getMetadata().getVersion().getFriendlyString();
 
     public static int lastTokenHash = 0;
 
     public static String getLastToken() {
-        return FSGWrapperModConfig.getInstance().lastToken;
+        return FSGModConfig.getInstance().lastToken;
     }
 
     public static void setLastToken(String lastToken) {
-        FSGWrapperModConfig.getInstance().lastToken = lastToken;
+        FSGModConfig.getInstance().lastToken = lastToken;
         lastTokenHash = lastToken.hashCode();
-        FSGWrapperModConfig.trySave();
+        FSGModConfig.trySave();
     }
 
     public static boolean shouldRunInBackground() {
-        return FSGWrapperModConfig.getInstance().runInBackground;
+        return FSGModConfig.getInstance().runInBackground;
     }
 
     public static boolean toggleRunInBackground() {
-        FSGWrapperModConfig.getInstance().runInBackground = !FSGWrapperModConfig.getInstance().runInBackground;
-        FSGWrapperModConfig.trySave();
-        return FSGWrapperModConfig.getInstance().runInBackground;
+        FSGModConfig.getInstance().runInBackground = !FSGModConfig.getInstance().runInBackground;
+        FSGModConfig.trySave();
+        return FSGModConfig.getInstance().runInBackground;
     }
 
     public static Path getFsgDir() {
@@ -48,11 +48,11 @@ public class FSGWrapperMod implements ModInitializer {
     }
 
     public static Path getRunPath() {
-        Path runForThisVersionPath = FSGWrapperMod.getFsgDir().resolve("run." + MinecraftVersion.field_25319.getName() + (FSGWrapperMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
+        Path runForThisVersionPath = FSGMod.getFsgDir().resolve("run." + MinecraftVersion.field_25319.getName() + (FSGMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
         if (Files.exists(runForThisVersionPath)) {
             return runForThisVersionPath;
         }
-        return FSGWrapperMod.getFsgDir().resolve("run" + (FSGWrapperMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
+        return FSGMod.getFsgDir().resolve("run" + (FSGMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
     }
 
     public static void logError(Throwable t) {
@@ -69,6 +69,6 @@ public class FSGWrapperMod implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing");
-        FSGWrapperModConfig.tryLoad();
+        FSGModConfig.tryLoad();
     }
 }

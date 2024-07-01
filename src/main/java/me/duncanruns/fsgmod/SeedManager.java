@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import org.apache.logging.log4j.Level;
 
@@ -42,7 +42,7 @@ public final class SeedManager {
             try {
                 out = FSGRunner.runFilter();
             } catch (Exception e) {
-                FSGWrapperMod.LOGGER.error(e);
+                FSGMod.LOGGER.error(e);
                 failed.set(true);
                 out = null;
             } finally {
@@ -50,10 +50,10 @@ public final class SeedManager {
             }
             if (!failed.get() && out == null) {
                 failed.set(true);
-                FSGWrapperMod.LOGGER.error("Error: The specified process did not return a seed!");
+                FSGMod.LOGGER.error("Error: The specified process did not return a seed!");
             }
             if (!failed.get()) {
-                FSGWrapperMod.LOGGER.log(Level.INFO, "Found seed!");
+                FSGMod.LOGGER.log(Level.INFO, "Found seed!");
                 currentResult = out;
                 seedExists.set(true);
             }

@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import java.io.FileWriter;
 import java.io.IOException;

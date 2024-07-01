@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FSGWrapperModConfig {
+public class FSGModConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("fsgwm.json");
-    private static FSGWrapperModConfig instance = new FSGWrapperModConfig();
+    private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("fsgwm.json"); // wm = wrapper mod, not changing for simplicity
+    private static FSGModConfig instance = new FSGModConfig();
 
     public String lastToken = null;
     public boolean runInBackground = false;
@@ -22,8 +22,8 @@ public class FSGWrapperModConfig {
         try {
             save();
         } catch (Exception e) {
-            FSGWrapperMod.LOGGER.error("Failed to save config!");
-            FSGWrapperMod.logError(e);
+            FSGMod.LOGGER.error("Failed to save config!");
+            FSGMod.logError(e);
         }
     }
 
@@ -35,22 +35,22 @@ public class FSGWrapperModConfig {
         try {
             load();
         } catch (Exception e) {
-            FSGWrapperMod.LOGGER.error("Failed to load config!");
-            FSGWrapperMod.logError(e);
+            FSGMod.LOGGER.error("Failed to load config!");
+            FSGMod.logError(e);
         }
     }
 
     private static void load() throws IOException, JsonSyntaxException {
         if (Files.exists(PATH)) {
             String s = FileUtil.readString(PATH);
-            instance = GSON.fromJson(s, FSGWrapperModConfig.class);
+            instance = GSON.fromJson(s, FSGModConfig.class);
             if (instance.lastToken != null) {
-                FSGWrapperMod.lastTokenHash = instance.lastToken.hashCode();
+                FSGMod.lastTokenHash = instance.lastToken.hashCode();
             }
         }
     }
 
-    public static FSGWrapperModConfig getInstance() {
+    public static FSGModConfig getInstance() {
         return instance;
     }
 }

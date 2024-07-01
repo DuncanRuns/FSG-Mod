@@ -1,7 +1,7 @@
-package me.duncanruns.fsgwrappermod.screen;
+package me.duncanruns.fsgmod.screen;
 
-import me.duncanruns.fsgwrappermod.FSGWrapperMod;
-import me.duncanruns.fsgwrappermod.SeedManager;
+import me.duncanruns.fsgmod.FSGMod;
+import me.duncanruns.fsgmod.SeedManager;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -29,8 +29,8 @@ public class FilterFailedScreen extends Screen {
 
     @Override
     protected void init() {
-        if (!Files.exists(FSGWrapperMod.getFsgDir())) {
-            text = "No filter is installed! Go to the wrapper mod options (wheat seeds button).";
+        if (!Files.exists(FSGMod.getFsgDir())) {
+            text = "No filter is installed! Go to the FSG mod options (wheat seeds button).";
         }
         this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.CANCEL, buttonWidget -> {
             Atum.isRunning = false;

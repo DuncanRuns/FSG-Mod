@@ -1,6 +1,6 @@
-package me.duncanruns.fsgwrappermod.screen;
+package me.duncanruns.fsgmod.screen;
 
-import me.duncanruns.fsgwrappermod.SeedManager;
+import me.duncanruns.fsgmod.SeedManager;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;

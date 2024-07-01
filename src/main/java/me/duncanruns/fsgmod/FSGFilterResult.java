@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 public final class FSGFilterResult {
     public final String seed;

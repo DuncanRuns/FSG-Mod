@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod.screen;
+package me.duncanruns.fsgmod.screen;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;

@@ -1,6 +1,6 @@
-package me.duncanruns.fsgwrappermod.screen;
+package me.duncanruns.fsgmod.screen;
 
-import me.duncanruns.fsgwrappermod.FSGWrapperMod;
+import me.duncanruns.fsgmod.FSGMod;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -83,7 +83,7 @@ public class DownloadingScreen extends Screen {
     }
 
     private void downloadAndMove() throws IOException {
-        Path zipFilePath = FSGWrapperMod.getGameDir().resolve("downloaded.zip");
+        Path zipFilePath = FSGMod.getGameDir().resolve("downloaded.zip");
 
         File zipFile = zipFilePath.toFile();
         if (!zipFile.isFile()) {
@@ -99,7 +99,7 @@ public class DownloadingScreen extends Screen {
             }
         }
 
-        String destDirPath = FSGWrapperMod.getFsgDir() + "/";
+        String destDirPath = FSGMod.getFsgDir() + "/";
 
         // Create the destination directory if it doesn't exist
         Path fsgFolderPath = Paths.get(destDirPath);
@@ -111,17 +111,17 @@ public class DownloadingScreen extends Screen {
         zipFile.delete();
         // Elevate folders
         List<Path> files;
-        while ((files = Files.list(FSGWrapperMod.getFsgDir()).collect(Collectors.toList())).size() == 1 && Files.isDirectory(files.get(0))) {
-            File temp = FSGWrapperMod.getFsgDir().resolveSibling("fsg-temp").toFile();
+        while ((files = Files.list(FSGMod.getFsgDir()).collect(Collectors.toList())).size() == 1 && Files.isDirectory(files.get(0))) {
+            File temp = FSGMod.getFsgDir().resolveSibling("fsg-temp").toFile();
             FileUtils.moveDirectory(files.get(0).toFile(), temp);
-            FileUtils.deleteDirectory(FSGWrapperMod.getFsgDir().toFile());
-            FileUtils.moveDirectory(temp, FSGWrapperMod.getFsgDir().toFile());
+            FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
+            FileUtils.moveDirectory(temp, FSGMod.getFsgDir().toFile());
             FileUtils.deleteDirectory(temp);
 
         }
 
-        if (!FSGWrapperMod.USING_WINDOWS) {
-            FSGWrapperMod.setAllInFolderExecutable();
+        if (!FSGMod.USING_WINDOWS) {
+            FSGMod.setAllInFolderExecutable();
         }
     }
 
@@ -157,8 +157,8 @@ public class DownloadingScreen extends Screen {
                 runOnCompletion.run();
             } catch (Exception e) {
                 failed = true;
-                FSGWrapperMod.LOGGER.error("Error while downloading!");
-                FSGWrapperMod.logError(e);
+                FSGMod.LOGGER.error("Error while downloading!");
+                FSGMod.logError(e);
             }
         }, "fsg-download");
         thread.start();

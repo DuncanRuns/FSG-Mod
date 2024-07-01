@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,9 +16,9 @@ public final class FSGRunner {
     }
 
     public static FSGFilterResult runFilter() throws IOException, InterruptedException {
-        String command = FSGWrapperMod.getRunPath().toString();
+        String command = FSGMod.getRunPath().toString();
 
-        Process process = new ProcessBuilder(command).directory(FSGWrapperMod.getFsgDir().toFile()).start();
+        Process process = new ProcessBuilder(command).directory(FSGMod.getFsgDir().toFile()).start();
 
 
         List<String> lines = new ArrayList<>();
@@ -32,10 +32,10 @@ public final class FSGRunner {
         String seedOut = null;
         String tokenOut = "Token Unavailable";
 
-        FSGWrapperMod.LOGGER.info("Filter Out:");
+        FSGMod.LOGGER.info("Filter Out:");
 
         for (String line : lines) {
-            FSGWrapperMod.LOGGER.info(line);
+            FSGMod.LOGGER.info(line);
             if (!line.contains(":")) {
                 continue;
             }

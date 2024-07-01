@@ -1,10 +1,10 @@
-package me.duncanruns.fsgwrappermod.mixin;
+package me.duncanruns.fsgmod.mixin;
 
-import me.duncanruns.fsgwrappermod.FSGFilterResult;
-import me.duncanruns.fsgwrappermod.FSGWrapperMod;
-import me.duncanruns.fsgwrappermod.SeedManager;
-import me.duncanruns.fsgwrappermod.screen.FilterFailedScreen;
-import me.duncanruns.fsgwrappermod.screen.FilteringScreen;
+import me.duncanruns.fsgmod.FSGFilterResult;
+import me.duncanruns.fsgmod.FSGMod;
+import me.duncanruns.fsgmod.SeedManager;
+import me.duncanruns.fsgmod.screen.FilterFailedScreen;
+import me.duncanruns.fsgmod.screen.FilteringScreen;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
@@ -31,7 +31,7 @@ public abstract class CreateWorldScreenMixin extends Screen {
 
         if (SeedManager.canTake()) {
             FSGFilterResult filterResult = SeedManager.take();
-            FSGWrapperMod.setLastToken(filterResult.token);
+            FSGMod.setLastToken(filterResult.token);
             Atum.seed = filterResult.seed;
         } else {
             SeedManager.find();

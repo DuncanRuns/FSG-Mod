@@ -1,6 +1,6 @@
-package me.duncanruns.fsgwrappermod.mixin;
+package me.duncanruns.fsgmod.mixin;
 
-import me.duncanruns.fsgwrappermod.screen.ConfigScreen;
+import me.duncanruns.fsgmod.screen.ConfigScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;

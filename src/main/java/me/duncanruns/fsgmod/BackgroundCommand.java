@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -12,7 +12,7 @@ public class BackgroundCommand {
     }
 
     private static int execute(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(new LiteralText((FSGWrapperMod.toggleRunInBackground() ? "Enabled" : "Disabled") + " background filtering"), false);
+        context.getSource().sendFeedback(new LiteralText((FSGMod.toggleRunInBackground() ? "Enabled" : "Disabled") + " background filtering"), false);
         return 1;
     }
 }

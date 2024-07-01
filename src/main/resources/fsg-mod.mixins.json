@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "me.duncanruns.fsgwrappermod.mixin",
+  "package": "me.duncanruns.fsgmod.mixin",
   "compatibilityLevel": "JAVA_8",
   "injectors": {
     "defaultRequire": 1

@@ -1,6 +1,6 @@
-package me.duncanruns.fsgwrappermod.mixin;
+package me.duncanruns.fsgmod.mixin;
 
-import me.duncanruns.fsgwrappermod.FSGWrapperMod;
+import me.duncanruns.fsgmod.FSGMod;
 import net.minecraft.client.gui.hud.DebugHud;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +13,6 @@ import java.util.List;
 public abstract class DebugHudMixin {
     @Inject(method = "getRightText", at = @At("RETURN"))
     private void avth(CallbackInfoReturnable<List<String>> info) {
-        info.getReturnValue().add(String.format("FSGWM v%s %d", FSGWrapperMod.VERSION, FSGWrapperMod.lastTokenHash));
+        info.getReturnValue().add(String.format("FSGWM v%s %d", FSGMod.VERSION, FSGMod.lastTokenHash));
     }
 }

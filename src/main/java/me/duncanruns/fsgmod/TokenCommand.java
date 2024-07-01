@@ -1,4 +1,4 @@
-package me.duncanruns.fsgwrappermod;
+package me.duncanruns.fsgmod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -13,7 +13,7 @@ public class TokenCommand {
     }
 
     private static int execute(CommandContext<ServerCommandSource> context) {
-        String lastToken = FSGWrapperMod.getLastToken();
+        String lastToken = FSGMod.getLastToken();
         if (lastToken == null) {
             context.getSource().sendError(new LiteralText("No tokens have been generated yet."));
             return 0;
@@ -21,7 +21,7 @@ public class TokenCommand {
         context.getSource().sendFeedback(
                 new LiteralText("Last token: ").append(
                         Texts.bracketed(new LiteralText(lastToken).styled(style -> style.withColor(Formatting.GREEN)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, FSGWrapperMod.getLastToken()))
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, FSGMod.getLastToken()))
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("chat.copy.click")))))
                 ), false
         );

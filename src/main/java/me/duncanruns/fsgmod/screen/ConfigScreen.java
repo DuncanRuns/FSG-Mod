@@ -1,10 +1,10 @@
-package me.duncanruns.fsgwrappermod.screen;
+package me.duncanruns.fsgmod.screen;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import me.duncanruns.fsgwrappermod.FSGWrapperMod;
-import me.duncanruns.fsgwrappermod.FSGWrapperModConfig;
-import me.duncanruns.fsgwrappermod.FileUtil;
+import me.duncanruns.fsgmod.FSGMod;
+import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.FileUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -30,7 +30,7 @@ public class ConfigScreen extends Screen {
     private int y;
 
     public ConfigScreen() {
-        super(new LiteralText("FSG Wrapper Mod Config"));
+        super(new LiteralText("FSG Mod Config"));
     }
 
     private static String getRSGButGoodDownload() throws IOException {
@@ -47,7 +47,7 @@ public class ConfigScreen extends Screen {
     }
 
     private LiteralText getBackgroundFilterText() {
-        return new LiteralText("Filter for next seed while playing: " + (FSGWrapperMod.shouldRunInBackground() ? "ON" : "OFF"));
+        return new LiteralText("Filter for next seed while playing: " + (FSGMod.shouldRunInBackground() ? "ON" : "OFF"));
     }
 
     @Override
@@ -65,30 +65,30 @@ public class ConfigScreen extends Screen {
         super.init(client, width, height);
         y = 15;
         y += 60;
-        if (Files.isDirectory(FSGWrapperMod.getFsgDir())) {
+        if (Files.isDirectory(FSGMod.getFsgDir())) {
             initFilterInstalled(client, width);
         } else {
             initFilterNotInstalled(client, width);
         }
         y += 60;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, getBackgroundFilterText(), b -> {
-            FSGWrapperMod.toggleRunInBackground();
+            FSGMod.toggleRunInBackground();
             b.setMessage(getBackgroundFilterText());
         }));
         this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.DONE, buttonWidget -> this.client.openScreen(null)));
     }
 
     private void initFilterInstalled(MinecraftClient client, int width) {
-        installedFilterText = "Installed Filter: " + FSGWrapperModConfig.getInstance().installedFilter;
+        installedFilterText = "Installed Filter: " + FSGModConfig.getInstance().installedFilter;
         y += 10;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Configure Filter (Open Folder)"), b -> Util.getOperatingSystem().open(FSGWrapperMod.getFsgDir().toFile())));
+        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Configure Filter (Open Folder)"), b -> Util.getOperatingSystem().open(FSGMod.getFsgDir().toFile())));
         y += 25;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
             try {
-                FileUtils.deleteDirectory(FSGWrapperMod.getFsgDir().toFile());
-                FSGWrapperModConfig.getInstance().installedFilter = "Unknown Filter";
+                FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
+                FSGModConfig.getInstance().installedFilter = "Unknown Filter";
             } catch (IOException e) {
-                FSGWrapperMod.logError(e);
+                FSGMod.logError(e);
             }
             client.openScreen(new ConfigScreen());
         }));
@@ -102,12 +102,12 @@ public class ConfigScreen extends Screen {
             try {
                 String rsgButGoodDownload = getRSGButGoodDownload();
                 client.openScreen(new DownloadingScreen(new URL(rsgButGoodDownload), new ConfigScreen(), () -> {
-                    FSGWrapperModConfig.getInstance().installedFilter = "RSGButGood";
+                    FSGModConfig.getInstance().installedFilter = "RSGButGood";
                     Matcher matcher = Pattern.compile("v\\d+\\.\\d+\\.\\d+").matcher(rsgButGoodDownload);
                     if (matcher.find()) {
-                        FSGWrapperModConfig.getInstance().installedFilter += " " + matcher.group();
+                        FSGModConfig.getInstance().installedFilter += " " + matcher.group();
                     }
-                    FSGWrapperModConfig.trySave();
+                    FSGModConfig.trySave();
                 }));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -117,12 +117,12 @@ public class ConfigScreen extends Screen {
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Install Seedbank"), b -> {
             try {
                 client.openScreen(new DownloadingScreen(new URL(os == Util.OperatingSystem.WINDOWS ? WINDOWS_SEEDBANK_DOWNLOAD : LINUX_SEEDBANK_DOWNLOAD), new ConfigScreen(), () -> {
-                    FSGWrapperModConfig.getInstance().installedFilter = "SeedBank";
-                    FSGWrapperModConfig.trySave();
+                    FSGModConfig.getInstance().installedFilter = "SeedBank";
+                    FSGModConfig.trySave();
                     try {
-                        FileUtil.writeString(FSGWrapperMod.getFsgDir().resolve("run.bat"), "findSeed");
-                        FileUtil.writeString(FSGWrapperMod.getFsgDir().resolve("run.sh"), "python3 findSeed.py");
-                        FSGWrapperMod.setAllInFolderExecutable();
+                        FileUtil.writeString(FSGMod.getFsgDir().resolve("run.bat"), "findSeed");
+                        FileUtil.writeString(FSGMod.getFsgDir().resolve("run.sh"), "python3 findSeed.py");
+                        FSGMod.setAllInFolderExecutable();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
