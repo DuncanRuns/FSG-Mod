@@ -14,7 +14,6 @@ import java.nio.file.Path;
 public class FSGMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("fsg-mod");
     public static final Util.OperatingSystem OPERATING_SYSTEM = Util.getOperatingSystem();
-    public static final boolean USING_WINDOWS = OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS);
     public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-mod").get().getMetadata().getVersion().getFriendlyString();
 
     public static int lastTokenHash = 0;
