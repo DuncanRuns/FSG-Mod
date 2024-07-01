@@ -29,7 +29,7 @@ public class FiltersScreen extends Screen {
         super(new LiteralText("FSG Mod: Install Filter"));
         new Thread(() -> {
             try {
-                JsonObject jsonObject = GrabUtil.grabJson("https://raw.githubusercontent.com/DuncanRuns/FSG-Mod/1.16.1/meta.json");
+                JsonObject jsonObject = GrabUtil.grabJson("https://raw.githubusercontent.com/DuncanRuns/FSG-Mod/meta/meta.json");
                 filters = jsonObject.getAsJsonArray("filters");
                 retrievedFilters = true;
             } catch (Exception e) {
