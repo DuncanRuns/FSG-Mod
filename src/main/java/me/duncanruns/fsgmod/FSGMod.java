@@ -2,7 +2,7 @@ package me.duncanruns.fsgmod;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.MinecraftVersion;
+import net.minecraft.SharedConstants;
 import net.minecraft.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +47,7 @@ public class FSGMod implements ModInitializer {
     }
 
     public static Path getRunPath() {
-        Path runForThisVersionPath = FSGMod.getFsgDir().resolve("run." + MinecraftVersion.field_25319.getName() + (FSGMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
+        Path runForThisVersionPath = FSGMod.getFsgDir().resolve("run." + SharedConstants.getGameVersion().getName() + (FSGMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
         if (Files.exists(runForThisVersionPath)) {
             return runForThisVersionPath;
         }

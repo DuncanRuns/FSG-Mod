@@ -10,7 +10,6 @@ import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 import java.io.IOException;
@@ -39,20 +38,20 @@ public class FiltersScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
+    public void render(int mouseX, int mouseY, float delta) {
+        renderBackground();
         int y = 15;
-        this.drawCenteredText(matrices, this.textRenderer, this.title, width / 2, y, 0xFFFFFF);
+        this.drawCenteredString(minecraft.textRenderer, this.title.asString(), width / 2, y, 0xFFFFFF);
         if (failed) {
             y += 60;
-            this.drawCenteredText(matrices, this.textRenderer, failedText, width / 2, y, 0xFFFFFF);
+            this.drawCenteredString(minecraft.textRenderer, failedText.asString(), width / 2, y, 0xFFFFFF);
             return;
         }
         if (!addedFilterButtons && retrievedFilters) {
             setupButtons();
         }
 
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(mouseX, mouseY, delta);
     }
 
     private void setupButtons() {
@@ -75,14 +74,14 @@ public class FiltersScreen extends Screen {
             }
             JsonObject download = filter.getAsJsonObject("download");
             String finalName = name;
-            addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText(name), b -> {
+            addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, name, b -> {
                 URL downloadURL;
                 try {
                     downloadURL = new URL(download.get(FSGMod.getOS3LetterCode()).getAsString());
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
-                client.openScreen(new DownloadingScreen(downloadURL, new ConfigScreen(), () -> {
+                minecraft.openScreen(new DownloadingScreen(downloadURL, new ConfigScreen(), () -> {
                     try {
                         if (filter.has("run.bat")) {
                             FileUtil.writeString(FSGMod.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());

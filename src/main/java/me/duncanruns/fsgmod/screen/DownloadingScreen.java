@@ -2,7 +2,6 @@ package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGMod;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import org.apache.commons.io.FileUtils;
 
@@ -124,11 +123,11 @@ public class DownloadingScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
-        this.drawCenteredText(matrices, this.textRenderer, this.title, width / 2, height / 3, 0xFFFFFF);
-        this.drawCenteredString(matrices, this.textRenderer, getDisplay(), width / 2, height / 2, 0xFFFFFF);
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(int mouseX, int mouseY, float delta) {
+        renderBackground();
+        this.drawCenteredString(minecraft.textRenderer, this.title.asString(), width / 2, height / 3, 0xFFFFFF);
+        this.drawCenteredString(minecraft.textRenderer, getDisplay(), width / 2, height / 2, 0xFFFFFF);
+        super.render(mouseX, mouseY, delta);
     }
 
     @Override
@@ -165,9 +164,9 @@ public class DownloadingScreen extends Screen {
             throw new RuntimeException(e);
         }
         if (failed) {
-            client.openScreen(new DownloadFailedScreen());
+            minecraft.openScreen(new DownloadFailedScreen());
         } else {
-            client.openScreen(screenOnCompletion);
+            minecraft.openScreen(screenOnCompletion);
         }
     }
 }

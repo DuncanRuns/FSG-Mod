@@ -20,8 +20,8 @@ public class TokenCommand {
         }
         context.getSource().sendFeedback(
                 new LiteralText("Last token: ").append(
-                        Texts.bracketed(new LiteralText(lastToken).styled(style -> style.withColor(Formatting.GREEN)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, FSGMod.getLastToken()))
+                        Texts.bracketed(new LiteralText(lastToken).styled(style -> style.setColor(Formatting.GREEN)
+                                .setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, FSGMod.getLastToken()))
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("chat.copy.click")))))
                 ), false
         );

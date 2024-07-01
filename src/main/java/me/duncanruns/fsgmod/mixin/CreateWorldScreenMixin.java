@@ -24,7 +24,7 @@ public abstract class CreateWorldScreenMixin extends Screen {
         if (!Atum.isRunning) return;
 
         if (SeedManager.hasFailed()) {
-            client.openScreen(new FilterFailedScreen());
+            minecraft.openScreen(new FilterFailedScreen());
             info.cancel();
             return;
         }
@@ -35,7 +35,7 @@ public abstract class CreateWorldScreenMixin extends Screen {
             Atum.seed = filterResult.seed;
         } else {
             SeedManager.find();
-            client.openScreen(new FilteringScreen());
+            minecraft.openScreen(new FilteringScreen());
             info.cancel();
         }
     }

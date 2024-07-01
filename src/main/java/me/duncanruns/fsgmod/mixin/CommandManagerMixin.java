@@ -19,7 +19,7 @@ public abstract class CommandManagerMixin {
     private CommandDispatcher<ServerCommandSource> dispatcher;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void addCommandMixin(CommandManager.RegistrationEnvironment environment, CallbackInfo info) {
+    private void addCommandMixin(boolean isDedicatedServer, CallbackInfo info) {
         TokenCommand.register(dispatcher);
         BackgroundCommand.register(dispatcher);
     }

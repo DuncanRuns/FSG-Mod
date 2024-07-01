@@ -14,7 +14,6 @@ group = project.maven_group
 repositories {
     flatDir {
         dirs("libs")
-        dirs("libs/sources")
     }
 }
 
@@ -25,7 +24,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // atum implementation
-    modImplementation(name: 'atum-1.2.2+1.16.1')
+    modImplementation(name: 'atum-1.2.2+1.15.2')
 }
 
 processResources {
