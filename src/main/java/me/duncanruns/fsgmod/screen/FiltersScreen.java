@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
-import me.duncanruns.fsgmod.FileUtil;
+import me.duncanruns.fsgmod.util.FileUtil;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.screen.Screen;
