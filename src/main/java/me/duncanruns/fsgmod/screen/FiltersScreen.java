@@ -13,8 +13,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.LiteralText;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class FiltersScreen extends Screen {
     private static LiteralText failedText = new LiteralText("Failed to retrieve filters!");
@@ -75,13 +73,7 @@ public class FiltersScreen extends Screen {
             JsonObject download = filter.getAsJsonObject("download");
             String finalName = name;
             addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, name, b -> {
-                URL downloadURL;
-                try {
-                    downloadURL = new URL(download.get(FSGMod.getOS3LetterCode()).getAsString());
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-                minecraft.openScreen(new DownloadingScreen(downloadURL, new ConfigScreen(), () -> {
+                minecraft.openScreen(new DownloadingScreen(download.get(FSGMod.getOS3LetterCode()).getAsString(), new ConfigScreen(), () -> {
                     try {
                         if (filter.has("run.bat")) {
                             FileUtil.writeString(FSGMod.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());

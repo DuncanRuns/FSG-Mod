@@ -1,12 +1,14 @@
 package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGMod;
+import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.LiteralText;
 import org.apache.commons.io.FileUtils;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,11 +22,11 @@ public class DownloadingScreen extends Screen {
     private boolean failed = false;
     private Thread thread = null;
     private int totalBytesRead = 0;
-    private final URL downloadURL;
+    private final String downloadURL;
     private final Screen screenOnCompletion;
     private final Runnable runOnCompletion;
 
-    public DownloadingScreen(URL downloadURL, Screen screenOnCompletion, Runnable runOnCompletion) {
+    public DownloadingScreen(String downloadURL, Screen screenOnCompletion, Runnable runOnCompletion) {
         super(new LiteralText("Filter Download"));
         this.downloadURL = downloadURL;
         this.screenOnCompletion = screenOnCompletion;
@@ -81,16 +83,7 @@ public class DownloadingScreen extends Screen {
 
         File zipFile = zipFilePath.toFile();
         if (!zipFile.isFile()) {
-            int bufferSize = 1024;
-            try (BufferedInputStream in = new BufferedInputStream(downloadURL.openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(zipFile)) {
-                byte[] dataBuffer = new byte[bufferSize];
-                int bytesRead;
-                while ((bytesRead = in.read(dataBuffer, 0, bufferSize)) != -1) {
-                    fileOutputStream.write(dataBuffer, 0, bytesRead);
-                    totalBytesRead += bytesRead;
-                }
-            }
+            GrabUtil.download(downloadURL, zipFilePath, i -> totalBytesRead = i);
         }
 
         String destDirPath = FSGMod.getFsgDir() + "/";
