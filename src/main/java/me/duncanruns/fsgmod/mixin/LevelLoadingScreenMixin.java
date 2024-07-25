@@ -20,9 +20,9 @@ public abstract class LevelLoadingScreenMixin extends Screen {
      */
     @TargetHandler(
             mixin = "me.voidxwalker.autoreset.mixin.LevelLoadingScreenMixin",
-            name = "atum_modifyString"
+            name = "modifyString"
     )
-    @ModifyArg(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/LevelLoadingScreen;drawCenteredString(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"))
+    @ModifyArg(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/LevelLoadingScreen;drawCenteredString(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"))
     private String replaceAtumRenderText(String ignore) {
         return "Filtered Seed";
     }
