@@ -8,6 +8,7 @@
   "client": [
     "CreateWorldScreenMixin",
     "DebugHudMixin",
+    "LevelLoadingScreenMixin",
     "MinecraftClientMixin",
     "TitleScreenMixin"
   ],
