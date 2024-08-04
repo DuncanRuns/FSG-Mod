@@ -73,8 +73,10 @@ public class FiltersScreen extends Screen {
             }
             JsonObject download = filter.getAsJsonObject("download");
             String finalName = name;
+            String osCode = FSGMod.getOS3LetterCode() + (FSGMod.onArm() ? "arm" : "");
+
             addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText(name), b -> {
-                client.openScreen(new DownloadingScreen(download.get(FSGMod.getOS3LetterCode()).getAsString(), new ConfigScreen(), () -> {
+                client.openScreen(new DownloadingScreen(download.get(osCode).getAsString(), new ConfigScreen(), () -> {
                     try {
                         if (filter.has("run.bat")) {
                             FileUtil.writeString(FSGMod.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());
@@ -89,7 +91,7 @@ public class FiltersScreen extends Screen {
                     }
                     FSGModConfig.trySave();
                 }));
-            })).active = download.has(FSGMod.getOS3LetterCode());
+            })).active = download.has(osCode);
             y += 25;
         }
         if (anySupportedFilters) {
