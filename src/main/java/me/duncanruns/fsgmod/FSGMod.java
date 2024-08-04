@@ -1,5 +1,6 @@
 package me.duncanruns.fsgmod;
 
+import me.duncanruns.fsgmod.util.ArchUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
@@ -74,6 +75,10 @@ public class FSGMod implements ModInitializer {
             default:
                 return "lin";
         }
+    }
+
+    public static boolean onArm() {
+        return ArchUtil.getArch() == ArchUtil.Arch.ARM;
     }
 
     @Override
