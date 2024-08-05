@@ -27,6 +27,22 @@
       },
       "run.bat": "findSeed",
       "run.sh": "python3 findSeed.py"
+    },
+    {
+      "name": "BeachFilter",
+      "version": "1.0.1",
+      "supports": [
+        "1.15.2",
+        "1.16.1"
+      ],
+      "download": {
+        "win": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
+        "lin": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
+        "mac": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
+        "winarm": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
+        "linarm": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
+        "macarm": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip"
+      }
     }
   ]
 }
