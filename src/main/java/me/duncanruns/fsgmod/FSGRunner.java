@@ -23,19 +23,20 @@ public final class FSGRunner {
 
         List<String> lines = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String readL;
         while ((readL = reader.readLine()) != null) {
             lines.add(readL.trim());
+            if ((readL = errReader.readLine()) != null) {
+                lines.add(readL.trim());
+            }
         }
         process.waitFor();
 
         String seedOut = null;
         String tokenOut = "Token Unavailable";
 
-        FSGMod.LOGGER.info("Filter Out:");
-
         for (String line : lines) {
-            FSGMod.LOGGER.info(line);
             if (!line.contains(":")) {
                 continue;
             }
@@ -55,6 +56,8 @@ public final class FSGRunner {
         }
 
         if (seedOut == null) {
+            FSGMod.LOGGER.info("No seed was returned, process output:");
+            lines.forEach(FSGMod.LOGGER::info);
             return null;
         }
 
