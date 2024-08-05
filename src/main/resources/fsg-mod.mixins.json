@@ -13,6 +13,7 @@
     "TitleScreenMixin"
   ],
   "mixins": [
-    "CommandManagerMixin"
+    "CommandManagerMixin",
+    "MoreOptionsDialogMixin"
   ]
 }
