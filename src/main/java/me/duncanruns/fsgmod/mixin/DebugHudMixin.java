@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mixin(value = DebugHud.class, priority = 1500)
 public abstract class DebugHudMixin {
@@ -28,16 +30,12 @@ public abstract class DebugHudMixin {
     }
 
     @TargetHandler(
-            mixin = "me.voidxwalker.autoreset.mixin.DebugHudMixin",
-            name = "atum_getRightText"
+            mixin = "me.voidxwalker.autoreset.mixin.gui.DebugHudMixin",
+            name = "modifyRightText"
     )
-    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"))
-    private boolean replace(List instance, Object item) {
-        List<String> stringList = (List<String>) instance;
-        String string = (String) item;
-        if (string.startsWith("Resetting the seed:")) {
-            return stringList.add("Resetting a filtered seed");
-        }
-        return stringList.add(string);
+    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z"))
+    private boolean replaceAtumDebugText(List<String> instance, Collection<? extends String> c) {
+        instance.addAll(c.stream().map(s -> s.startsWith("Resetting the seed") ? "Resetting a filtered seed" : s).collect(Collectors.toList()));
+        return false;
     }
 }

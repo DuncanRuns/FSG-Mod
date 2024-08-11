@@ -33,7 +33,7 @@ public class FilterFailedScreen extends Screen {
             text = "No filter is installed! Go to the FSG mod options (wheat seeds button).";
         }
         this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.CANCEL, buttonWidget -> {
-            Atum.isRunning = false;
+            Atum.stopRunning();
             SeedManager.acknowledgeFail();
             this.client.openScreen(new TitleScreen());
         }));

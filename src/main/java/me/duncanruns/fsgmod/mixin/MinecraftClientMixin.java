@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftClientMixin {
     @Inject(method = "startIntegratedServer(Ljava/lang/String;Lnet/minecraft/util/registry/RegistryTracker$Modifiable;Ljava/util/function/Function;Lcom/mojang/datafixers/util/Function4;ZLnet/minecraft/client/MinecraftClient$WorldLoadAction;)V", at = @At("TAIL"))
     private void onFinishCreateWorld(CallbackInfo info) {
-        if (Atum.isRunning && FSGMod.shouldRunInBackground()) {
+        if (Atum.isRunning() && FSGMod.shouldRunInBackground()) {
             SeedManager.find();
         }
     }
