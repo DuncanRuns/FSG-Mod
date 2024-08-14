@@ -7,10 +7,15 @@ import me.duncanruns.fsgmod.SeedManager;
 import me.duncanruns.fsgmod.screen.FilterFailedScreen;
 import me.duncanruns.fsgmod.screen.FilteringScreen;
 import me.voidxwalker.autoreset.Atum;
+import me.voidxwalker.autoreset.interfaces.IMoreOptionsDialog;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import org.apache.logging.log4j.Level;
+import net.minecraft.client.gui.screen.world.MoreOptionsDialog;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -18,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = CreateWorldScreen.class, priority = 1500)
 public abstract class CreateWorldScreenMixin extends Screen {
+    @Shadow @Final public MoreOptionsDialog moreOptionsDialog;
+
     protected CreateWorldScreenMixin() {
         super(null);
     }
@@ -27,7 +34,7 @@ public abstract class CreateWorldScreenMixin extends Screen {
         if (!Atum.isRunning()) return;
 
         if (SeedManager.hasFailed()) {
-            client.openScreen(new FilterFailedScreen());
+            MinecraftClient.getInstance().openScreen(new FilterFailedScreen());
             info.cancel();
             return;
         }
@@ -36,9 +43,10 @@ public abstract class CreateWorldScreenMixin extends Screen {
             FSGFilterResult filterResult = SeedManager.take();
             FSGMod.setLastToken(filterResult.token);
             Atum.config.seed = filterResult.seed;
+            ((IMoreOptionsDialog) moreOptionsDialog).atum$loadAtumConfigurations();
         } else {
             SeedManager.find();
-            client.openScreen(new FilteringScreen());
+            MinecraftClient.getInstance().openScreen(new FilteringScreen());
             info.cancel();
         }
     }
@@ -47,8 +55,8 @@ public abstract class CreateWorldScreenMixin extends Screen {
             mixin = "me.voidxwalker.autoreset.mixin.config.CreateWorldScreenMixin",
             name = "modifyAtumCreateWorldScreen"
     )
-    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Lme/voidxwalker/autoreset/Atum;log(Lorg/apache/logging/log4j/Level;Ljava/lang/String;)V", ordinal = 0), remap = false)
-    private void replaceAtumSetSeedLog(Level level, String message) {
-        Atum.log(level, "Creating \"Set Speedrun #10\" with a filtered seed...");
+    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;)V", ordinal = 0), remap = false)
+    private void replaceAtumSetSeedLog(Logger instance, String message) {
+        instance.info(message.substring(0, message.indexOf("with")) + "with a filtered seed...");
     }
 }
