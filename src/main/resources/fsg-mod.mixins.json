@@ -6,13 +6,12 @@
     "defaultRequire": 1
   },
   "client": [
+    "AtumMixin",
+    "CommandManagerMixin",
     "CreateWorldScreenMixin",
     "DebugHudMixin",
     "LevelLoadingScreenMixin",
     "MinecraftClientMixin",
     "TitleScreenMixin"
-  ],
-  "mixins": [
-    "CommandManagerMixin"
   ]
 }

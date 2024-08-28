@@ -55,8 +55,8 @@ public abstract class CreateWorldScreenMixin extends Screen {
             mixin = "me.voidxwalker.autoreset.mixin.config.CreateWorldScreenMixin",
             name = "modifyAtumCreateWorldScreen"
     )
-    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;)V", ordinal = 0), remap = false)
-    private void replaceAtumSetSeedLog(Logger instance, String message) {
-        instance.info(message.substring(0, message.indexOf("with")) + "with a filtered seed...");
+    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"), remap = false)
+    private void replaceAtumSetSeedLog(Logger instance, String message, Object name, Object seed) {
+        instance.info(message.replace("with seed \"{}\"...", "with a filtered seed..."), name);
     }
 }
