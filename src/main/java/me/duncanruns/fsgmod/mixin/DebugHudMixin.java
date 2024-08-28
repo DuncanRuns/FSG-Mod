@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.time.Instant;
@@ -33,9 +33,8 @@ public abstract class DebugHudMixin {
             mixin = "me.voidxwalker.autoreset.mixin.gui.DebugHudMixin",
             name = "modifyRightText"
     )
-    @Redirect(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z"))
-    private boolean replaceAtumDebugText(List<String> instance, Collection<? extends String> c) {
-        instance.addAll(c.stream().map(s -> s.startsWith("Resetting the seed") ? "Resetting a filtered seed" : s).collect(Collectors.toList()));
-        return false;
+    @ModifyArg(method = "@MixinSquared:Handler", at = @At(value = "INVOKE", target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z"))
+    private Collection<? extends String> replaceAtumDebugText(Collection<? extends String> c) {
+        return c.stream().map(s -> s.startsWith("Resetting the seed") ? "Resetting a filtered seed" : s).collect(Collectors.toList());
     }
 }
