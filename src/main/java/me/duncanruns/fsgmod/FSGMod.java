@@ -1,6 +1,10 @@
 package me.duncanruns.fsgmod;
 
+import me.duncanruns.fsgmod.screen.FilteringScreen;
 import me.duncanruns.fsgmod.util.ArchUtil;
+import me.voidxwalker.autoreset.Atum;
+import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
+import me.voidxwalker.autoreset.api.seedprovider.SeedProvider;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.MinecraftVersion;
@@ -11,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class FSGMod implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("fsg-mod");
@@ -85,5 +90,35 @@ public class FSGMod implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing");
         FSGModConfig.tryLoad();
+
+        Atum.setSeedProvider(new SeedProvider() {
+            @Override
+            public Optional<String> getSeed() {
+                if (SeedManager.hasFailed()) return Optional.empty();
+                if (!SeedManager.canTake()) {
+                    SeedManager.find();
+                    return Optional.empty();
+                }
+
+                FSGFilterResult filterResult = SeedManager.take();
+                FSGMod.setLastToken(filterResult.token);
+                return Optional.of(filterResult.seed);
+            }
+
+            @Override
+            public boolean shouldShowSeed() {
+                return false;
+            }
+
+            @Override
+            public void waitForSeed() {
+                // TODO: implement for SeedQueue support later.
+            }
+
+            @Override
+            public AtumWaitingScreen getWaitingScreen() {
+                return new FilteringScreen();
+            }
+        });
     }
 }

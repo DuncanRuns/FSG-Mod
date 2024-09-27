@@ -1,15 +1,14 @@
 package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.SeedManager;
-import me.voidxwalker.autoreset.Atum;
-import me.voidxwalker.autoreset.AtumCreateWorldScreen;
-import net.minecraft.client.gui.screen.Screen;
+import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
-public class FilteringScreen extends Screen {
+public class FilteringScreen extends AtumWaitingScreen {
     public FilteringScreen() {
         super(new LiteralText("Filtering Seeds..."));
     }
@@ -24,16 +23,16 @@ public class FilteringScreen extends Screen {
     @Override
     protected void init() {
         final int bWidth = 100, bHeight = 20;
-        this.addButton(new ButtonWidget(this.width - bWidth, this.height - bHeight, bWidth, bHeight, ScreenTexts.CANCEL, buttonWidget -> {
-            Atum.stopRunning();
-            client.openScreen(null);
-        }));
+        this.addButton(new ButtonWidget(this.width - bWidth, this.height - bHeight, bWidth, bHeight, ScreenTexts.CANCEL, buttonWidget -> cancelWorldCreation()));
     }
 
     @Override
     public void tick() {
-        if (SeedManager.canTake() || SeedManager.hasFailed()) {
-            client.openScreen(new AtumCreateWorldScreen(null));
+        if (SeedManager.canTake()) {
+            continueWorldCreation();
+        } else if (SeedManager.hasFailed()) {
+            cancelWorldCreation();
+            MinecraftClient.getInstance().openScreen(new FilterFailedScreen());
         }
     }
 }

@@ -8,9 +8,7 @@
   "client": [
     "AtumMixin",
     "CommandManagerMixin",
-    "CreateWorldScreenMixin",
     "DebugHudMixin",
-    "LevelLoadingScreenMixin",
     "MinecraftClientMixin",
     "TitleScreenMixin"
   ]

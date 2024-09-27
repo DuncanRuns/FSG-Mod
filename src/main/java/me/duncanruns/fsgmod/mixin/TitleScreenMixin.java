@@ -34,6 +34,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(method = "init", at = @At("TAIL"))
     private void init(CallbackInfo info) {
         this.addButton(new ButtonWidget(this.width / 2 - 124, this.height / 4 + 48 + 24, 20, 20, new LiteralText(""), (b) -> {
+            assert client != null;
             client.openScreen(new ConfigScreen());
         }));
     }
