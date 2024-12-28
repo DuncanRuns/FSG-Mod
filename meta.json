@@ -7,6 +7,7 @@
         "1.16.1"
       ],
       "version": "2.1.0",
+      "maxGenerating": 1,
       "download": {
         "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v2.1.0/ZigSeedGlitchless.v2.1.0.win.zip",
         "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v2.1.0/ZigSeedGlitchless.v2.1.0.lin.zip",
@@ -22,6 +23,7 @@
         "1.16.1"
       ],
       "version": "2.1.0",
+      "maxGenerating": 1,
       "download": {
         "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v2.1.0/ZigSeedGlitchless.v2.1.0.win.op.zip",
         "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v2.1.0/ZigSeedGlitchless.v2.1.0.lin.op.zip",
@@ -36,6 +38,7 @@
       "supports": [
         "1.16.1"
       ],
+      "maxGenerating": 1,
       "download": {
         "win": "https://github.com/pmaccamp/FSGOptimizedSeedBank/archive/refs/tags/v1.zip",
         "lin": "https://github.com/Specnr/FSGOptimizedSeedBank/archive/refs/tags/v1.2.8.zip"
@@ -50,6 +53,7 @@
         "1.15.2",
         "1.16.1"
       ],
+      "maxGenerating": 999,
       "download": {
         "win": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
         "lin": "https://github.com/DuncanRuns/BeachFilter/releases/download/v1.0.1/BeachFilter.v1.0.1.zip",
