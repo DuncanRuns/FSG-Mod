@@ -35,6 +35,11 @@ public final class SeedManager {
         kick(fromFilteringScreen);
 
         while (!hasSeed()) {
+            synchronized (SeedManager.class) {
+                if (currentlyFiltering == 0) {
+                    kick(true);
+                }
+            }
             try {
                 Thread.sleep(25);
             } catch (InterruptedException e) {
