@@ -22,7 +22,7 @@
     "minecraft": "~1.16.1",
     "atum": ">=2.3"
   },
-  "breaks": {
+  "recommends": {
     "seedqueue": "*"
   }
 }

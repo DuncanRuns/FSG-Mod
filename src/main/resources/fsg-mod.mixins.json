@@ -7,9 +7,12 @@
   },
   "client": [
     "AtumMixin",
-    "CommandManagerMixin",
     "DebugHudMixin",
     "MinecraftClientMixin",
     "TitleScreenMixin"
+  ],
+  "mixins": [
+    "CommandManagerMixin",
+    "LevelPropertiesMixin"
   ]
 }

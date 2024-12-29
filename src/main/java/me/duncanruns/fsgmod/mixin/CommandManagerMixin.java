@@ -1,7 +1,6 @@
 package me.duncanruns.fsgmod.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
-import me.duncanruns.fsgmod.BackgroundCommand;
 import me.duncanruns.fsgmod.TokenCommand;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -21,6 +20,5 @@ public abstract class CommandManagerMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void addCommandMixin(CommandManager.RegistrationEnvironment environment, CallbackInfo info) {
         TokenCommand.register(dispatcher);
-        BackgroundCommand.register(dispatcher);
     }
 }

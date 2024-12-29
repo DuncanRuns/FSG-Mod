@@ -140,8 +140,7 @@ public class DownloadingScreen extends Screen {
                 runOnCompletion.run();
             } catch (Exception e) {
                 failed = true;
-                FSGMod.LOGGER.error("Error while downloading!");
-                FSGMod.logError(e);
+                FSGMod.logError("Error while downloading!", e);
             }
         }, "fsg-download");
         thread.start();

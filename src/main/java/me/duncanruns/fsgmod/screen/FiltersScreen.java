@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.SeedManager;
 import me.duncanruns.fsgmod.util.FileUtil;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.SharedConstants;
@@ -73,10 +74,12 @@ public class FiltersScreen extends Screen {
             }
             JsonObject download = filter.getAsJsonObject("download");
             String finalName = name;
+            int maxGenerating = filter.get("maxGenerating").getAsInt();
             String osCode = FSGMod.getOS3LetterCode() + (FSGMod.onArm() ? "arm" : "");
 
             addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText(name), b -> {
                 client.openScreen(new DownloadingScreen(download.get(osCode).getAsString(), new ConfigScreen(), () -> {
+                    SeedManager.clear();
                     try {
                         if (filter.has("run.bat")) {
                             FileUtil.writeString(FSGMod.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());
@@ -86,8 +89,9 @@ public class FiltersScreen extends Screen {
                         }
                         FSGMod.setAllInFolderExecutable();
                         FSGModConfig.getInstance().installedFilter = finalName;
+                        FSGModConfig.getInstance().maxGenerating = maxGenerating;
                     } catch (IOException e) {
-                        FSGMod.logError(e);
+                        FSGMod.logError("Failed to install filter!", e);
                     }
                     FSGModConfig.trySave();
                 }));

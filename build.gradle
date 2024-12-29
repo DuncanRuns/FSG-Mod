@@ -23,8 +23,9 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation 'com.github.KingContaria:atum-rewrite:75ad5523cb'
+    modImplementation 'com.github.KingContaria:atum-rewrite:d8969c985f'
     modImplementation 'com.github.KingContaria:SpeedrunAPI:v1.1'
+    modImplementation 'com.github.DuncanRuns:seedqueue:5cd6c2e642' // Todo change to non-fork once jitpack PR is merged
 }
 
 processResources {

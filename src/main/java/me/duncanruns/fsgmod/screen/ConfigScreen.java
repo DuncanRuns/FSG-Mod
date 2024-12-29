@@ -2,6 +2,7 @@ package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.SeedManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -20,10 +21,6 @@ public class ConfigScreen extends Screen {
 
     public ConfigScreen() {
         super(new LiteralText("FSG Mod Config"));
-    }
-
-    private LiteralText getBackgroundFilterText() {
-        return new LiteralText("Filter for next seed while playing: " + (FSGMod.shouldRunInBackground() ? "ON" : "OFF"));
     }
 
     @Override
@@ -46,10 +43,6 @@ public class ConfigScreen extends Screen {
             initFilterNotInstalled(client, width);
         }
         y += 60;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, getBackgroundFilterText(), b -> {
-            FSGMod.toggleRunInBackground();
-            b.setMessage(getBackgroundFilterText());
-        }));
         this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.DONE, buttonWidget -> this.client.openScreen(null)));
     }
 
@@ -59,11 +52,12 @@ public class ConfigScreen extends Screen {
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Configure Filter (Open Folder)"), b -> Util.getOperatingSystem().open(FSGMod.getFsgDir().toFile())));
         y += 25;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
+            SeedManager.clear();
             try {
                 FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
                 FSGModConfig.getInstance().installedFilter = "Unknown Filter";
             } catch (IOException e) {
-                FSGMod.logError(e);
+                FSGMod.logError("Failed to delete fsg directory", e);
             }
             client.openScreen(new ConfigScreen());
         }));

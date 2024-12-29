@@ -2,13 +2,14 @@ package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.SeedManager;
 import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 public class FilteringScreen extends AtumWaitingScreen {
+    private boolean done = false;
+
     public FilteringScreen() {
         super(new LiteralText("Filtering Seeds..."));
     }
@@ -22,17 +23,16 @@ public class FilteringScreen extends AtumWaitingScreen {
 
     @Override
     protected void init() {
+        new Thread(() -> {
+            SeedManager.waitForSeed(true);
+            done = true;
+        }).start();
         final int bWidth = 100, bHeight = 20;
         this.addButton(new ButtonWidget(this.width - bWidth, this.height - bHeight, bWidth, bHeight, ScreenTexts.CANCEL, buttonWidget -> cancelWorldCreation()));
     }
 
     @Override
     public void tick() {
-        if (SeedManager.canTake()) {
-            continueWorldCreation();
-        } else if (SeedManager.hasFailed()) {
-            cancelWorldCreation();
-            MinecraftClient.getInstance().openScreen(new FilterFailedScreen());
-        }
+        if (done) continueWorldCreation();
     }
 }

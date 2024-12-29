@@ -1,7 +1,6 @@
 package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGMod;
-import me.duncanruns.fsgmod.SeedManager;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -34,7 +33,6 @@ public class FilterFailedScreen extends Screen {
         }
         this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.CANCEL, buttonWidget -> {
             Atum.stopRunning();
-            SeedManager.acknowledgeFail();
             this.client.openScreen(new TitleScreen());
         }));
     }

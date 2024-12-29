@@ -20,7 +20,6 @@ public final class FSGRunner {
 
         Process process = new ProcessBuilder(command).directory(FSGMod.getFsgDir().toFile()).start();
 
-
         List<String> lines = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -32,6 +31,8 @@ public final class FSGRunner {
             }
         }
         process.waitFor();
+
+        long generationTime = System.currentTimeMillis();
 
         String seedOut = null;
         String tokenOut = "Token Unavailable";
@@ -61,6 +62,6 @@ public final class FSGRunner {
             return null;
         }
 
-        return new FSGFilterResult(seedOut, tokenOut);
+        return new FSGFilterResult(seedOut, tokenOut, generationTime);
     }
 }

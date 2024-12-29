@@ -2,6 +2,7 @@ package me.duncanruns.fsgmod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import me.duncanruns.fsgmod.duck.TokenHolder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;
@@ -13,15 +14,15 @@ public class TokenCommand {
     }
 
     private static int execute(CommandContext<ServerCommandSource> context) {
-        String lastToken = FSGMod.getLastToken();
-        if (lastToken == null) {
-            context.getSource().sendError(new LiteralText("No tokens have been generated yet."));
+        String token = ((TokenHolder) context.getSource().getMinecraftServer().getSaveProperties()).fsgmod$getToken();
+        if (token == null) {
+            context.getSource().sendError(new LiteralText("This world does not have a token."));
             return 0;
         }
         context.getSource().sendFeedback(
                 new LiteralText("Last token: ").append(
-                        Texts.bracketed(new LiteralText(lastToken).styled(style -> style.withColor(Formatting.GREEN)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, FSGMod.getLastToken()))
+                        Texts.bracketed(new LiteralText(token).styled(style -> style.withColor(Formatting.GREEN)
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, token))
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("chat.copy.click")))))
                 ), false
         );
