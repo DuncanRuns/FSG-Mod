@@ -39,7 +39,6 @@ public class DownloadingScreen extends Screen {
      *
      * @param zipFilePath the path to the zip file
      * @param outputDir   the path to the output directory
-     *
      * @throws IOException if an I/O error occurs
      */
     private static void unzip(Path zipFilePath, Path outputDir) throws IOException {

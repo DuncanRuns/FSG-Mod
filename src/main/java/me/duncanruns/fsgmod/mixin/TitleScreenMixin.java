@@ -1,8 +1,6 @@
 package me.duncanruns.fsgmod.mixin;
 
-import me.duncanruns.fsgmod.SeedManager;
 import me.duncanruns.fsgmod.screen.ConfigScreen;
-import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -24,8 +22,11 @@ import java.util.Random;
 public abstract class TitleScreenMixin extends Screen {
     @Unique
     private static final Identifier BUTTON_IMAGE = new Identifier("textures/item/wheat_seeds.png");
-    @Unique private static final Random RANDOM = new Random();
-    @Shadow @Final private boolean isMinceraft;
+    @Unique
+    private static final Random RANDOM = new Random();
+    @Shadow
+    @Final
+    private boolean isMinceraft;
     @Unique
     private final int seedOffset = RANDOM.nextInt(2); // If you found this, yes, it's making the seed render one pixel off at random.
 

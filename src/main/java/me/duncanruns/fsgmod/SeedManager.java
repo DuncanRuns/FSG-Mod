@@ -25,7 +25,7 @@ public final class SeedManager {
     private SeedManager() {
     }
 
-    public static void clear(){
+    public static void clear() {
         synchronized (SeedManager.class) {
             resultQueue = new ConcurrentLinkedQueue<>();
         }
