@@ -1,7 +1,7 @@
 package me.duncanruns.fsgmod.mixin;
 
 import me.duncanruns.fsgmod.FSGMod;
-import me.duncanruns.fsgmod.duck.TokenHolder;
+import me.duncanruns.fsgmod.mixinint.TokenHolder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.server.integrated.IntegratedServer;

@@ -2,7 +2,7 @@ package me.duncanruns.fsgmod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import me.duncanruns.fsgmod.duck.TokenHolder;
+import me.duncanruns.fsgmod.mixinint.TokenHolder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;

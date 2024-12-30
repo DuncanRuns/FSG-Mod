@@ -1,4 +1,4 @@
-package me.duncanruns.fsgmod.duck;
+package me.duncanruns.fsgmod.mixinint;
 
 public interface TokenHolder {
     String fsgmod$getToken();

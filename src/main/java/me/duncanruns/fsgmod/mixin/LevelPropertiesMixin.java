@@ -4,7 +4,7 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import me.duncanruns.fsgmod.SeedManager;
-import me.duncanruns.fsgmod.duck.TokenHolder;
+import me.duncanruns.fsgmod.mixinint.TokenHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.registry.RegistryTracker;
