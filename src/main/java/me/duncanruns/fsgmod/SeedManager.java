@@ -30,7 +30,7 @@ public final class SeedManager {
     }
 
     public static void waitForSeed() {
-        if(!ModCompat.HAS_SEEDQUEUE) startNewFilterThread();
+        if (!ModCompat.HAS_SEEDQUEUE) startNewFilterThread();
 
         Object queueAtStart;
         synchronized (SeedManager.class) {
@@ -57,9 +57,7 @@ public final class SeedManager {
      * Kicks the seed manager into generating seeds.
      */
     private static synchronized void kick(boolean forceOne) {
-        if (!ModCompat.HAS_SEEDQUEUE) {
-            return;
-        }
+        if (!ModCompat.HAS_SEEDQUEUE) return;
 
         int maxCapacity = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
         ModCompat.seedqueue$clampMaxCapacity(maxCapacity);
