@@ -19,7 +19,7 @@ public class FSGMod implements ModInitializer {
     public static final Util.OperatingSystem OPERATING_SYSTEM = Util.getOperatingSystem();
     public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-mod").get().getMetadata().getVersion().getFriendlyString();
 
-    public static String currentToken = null;
+    public static final boolean DEBUG = false;
 
     public static Path getFsgDir() {
         return getGameDir().resolve("fsg");

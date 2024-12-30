@@ -23,4 +23,12 @@ public class ModCompat {
         if (!HAS_SEEDQUEUE) return;
         SeedQueueCompat.clampMaxCapacity(max);
     }
+
+    public static int seedqueue$getMaxConcurrently() {
+        return HAS_SEEDQUEUE ? SeedQueueCompat.getMaxConcurrently() : -1;
+    }
+
+    public static int seedqueue$getMaxConcurrently_onWall() {
+        return HAS_SEEDQUEUE ? SeedQueueCompat.getMaxConcurrently_onWall() : -1;
+    }
 }

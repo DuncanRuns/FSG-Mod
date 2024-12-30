@@ -1,7 +1,6 @@
 package me.duncanruns.fsgmod;
 
 import me.duncanruns.fsgmod.compat.ModCompat;
-import me.duncanruns.fsgmod.screen.FilterFailedScreen;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
@@ -19,8 +18,7 @@ public final class SeedManager {
 
     private static Queue<FSGFilterResult> resultQueue = new ConcurrentLinkedQueue<>();
     private static final Queue<FSGFilterResult> resultCache = new ConcurrentLinkedQueue<>();
-    private static int currentlyFiltering = 0;
-    private static boolean failed = false;
+    public static int currentlyFiltering = 0;
 
     private SeedManager() {
     }
@@ -31,22 +29,22 @@ public final class SeedManager {
         }
     }
 
-    public static void waitForSeed(boolean fromFilteringScreen) {
-        kick(fromFilteringScreen);
-
+    public static void waitForSeed() {
+        Object queueAtStart;
+        synchronized (SeedManager.class) {
+            queueAtStart = resultQueue;
+        }
         while (!hasSeed()) {
             synchronized (SeedManager.class) {
-                if (currentlyFiltering == 0) {
-                    kick(true);
+                if (queueAtStart != resultQueue) {
+                    return;
                 }
+                kick(currentlyFiltering == 0);
             }
             try {
                 Thread.sleep(25);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            }
-            if (failed) {
-                failed = false;
             }
         }
     }
@@ -54,27 +52,26 @@ public final class SeedManager {
     /**
      * Kicks the seed manager into generating seeds.
      */
-    private static void kick(boolean forceOne) {
+    private static synchronized void kick(boolean forceOne) {
         if (ModCompat.HAS_SEEDQUEUE) {
-            int maxGenerating = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
-            ModCompat.seedqueue$clampMaxCapacity(maxGenerating);
+            int maxCapacity = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
+            ModCompat.seedqueue$clampMaxCapacity(maxCapacity);
+            int maxGenerating = Math.min(maxCapacity, Math.max(ModCompat.seedqueue$getMaxConcurrently_onWall(), ModCompat.seedqueue$getMaxConcurrently()));
 
-            synchronized (SeedManager.class) {
-                int toGenerate = maxGenerating - ModCompat.seedqueue$getTotalEntries() - currentlyFiltering;
-                FSGMod.LOGGER.info("Starting {} filtering threads...", toGenerate);
-                startNewFilterThreads(Math.max(toGenerate, forceOne ? 1 : 0));
-            }
+            int toGenerate = Math.min(maxCapacity - ModCompat.seedqueue$getTotalEntries() - resultQueue.size(), maxGenerating) - currentlyFiltering;
+            toGenerate = Math.max(toGenerate, forceOne ? 1 : 0);
+            if (toGenerate == 0) return;
+            FSGMod.LOGGER.info("Starting {} filtering threads...", toGenerate);
+            startNewFilterThreads(toGenerate);
         } else {
             FSGMod.LOGGER.info("Starting 1 filtering threads...");
             startNewFilterThreads(1);
         }
     }
 
-    private static void startNewFilterThreads(int total) {
+    private static synchronized void startNewFilterThreads(int total) {
         for (int i = 0; i < total; i++) {
-            synchronized (SeedManager.class) {
-                currentlyFiltering++;
-            }
+            currentlyFiltering++;
             startNewFilterThread();
         }
     }
@@ -89,9 +86,10 @@ public final class SeedManager {
             try {
                 result = FSGRunner.runFilter();
             } catch (IOException | InterruptedException e) {
-                FSGMod.logError("Failed to run filter!", e);
                 synchronized (SeedManager.class) {
                     currentlyFiltering--;
+                    if (resultQueue != queueToUse) return;
+                    FSGMod.logError("Failed to run filter!", e);
                     onFail();
                 }
                 return;
@@ -101,25 +99,25 @@ public final class SeedManager {
                 queueToUse.add(result);
                 while (resultCache.size() > 200) resultCache.remove();
                 currentlyFiltering--;
+                if (Atum.isRunning()) kick(false);
             }
         }, "filter-thread").start();
 
     }
 
-    private static void onFail() {
+    private static synchronized void onFail() {
+        clear();
         MinecraftClient.getInstance().execute(() -> {
             Atum.stopRunning();
             MinecraftClient client = MinecraftClient.getInstance();
-            if (client.world == null) {
-                client.openScreen(new FilterFailedScreen());
-            } else if (client.player != null) {
+            if (client.world != null && client.player != null) {
                 client.inGameHud.getChatHud().addMessage(Text.method_30163("(FSG Mod) Filtering has failed!").copy().styled(style -> style.withColor(Formatting.RED).withColor(Formatting.BOLD)));
             }
         });
-        failed = true;
     }
 
     public static boolean hasSeed() {
+        kick(false);
         return !resultQueue.isEmpty();
     }
 

@@ -14,4 +14,12 @@ class SeedQueueCompat {
     static void clampMaxCapacity(int max) {
         SeedQueue.config.maxCapacity = Math.min(max, SeedQueue.config.maxCapacity);
     }
+
+    static int getMaxConcurrently() {
+        return SeedQueue.config.maxConcurrently;
+    }
+
+    static int getMaxConcurrently_onWall() {
+        return SeedQueue.config.maxConcurrently_onWall;
+    }
 }

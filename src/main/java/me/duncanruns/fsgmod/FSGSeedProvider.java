@@ -19,7 +19,7 @@ class FSGSeedProvider implements SeedProvider {
 
     @Override
     public void waitForSeed() {
-        SeedManager.waitForSeed(false);
+        SeedManager.waitForSeed();
     }
 
     @Override

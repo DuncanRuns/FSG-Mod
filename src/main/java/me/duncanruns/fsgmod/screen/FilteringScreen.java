@@ -9,6 +9,7 @@ import net.minecraft.text.LiteralText;
 
 public class FilteringScreen extends AtumWaitingScreen {
     private boolean done = false;
+    private boolean failed = false;
 
     public FilteringScreen() {
         super(new LiteralText("Filtering Seeds..."));
@@ -24,8 +25,12 @@ public class FilteringScreen extends AtumWaitingScreen {
     @Override
     protected void init() {
         new Thread(() -> {
-            SeedManager.waitForSeed(true);
-            done = true;
+            SeedManager.waitForSeed();
+            if (SeedManager.hasSeed()) {
+                done = true;
+            } else {
+                failed = true;
+            }
         }).start();
         final int bWidth = 100, bHeight = 20;
         this.addButton(new ButtonWidget(this.width - bWidth, this.height - bHeight, bWidth, bHeight, ScreenTexts.CANCEL, buttonWidget -> cancelWorldCreation()));
@@ -34,5 +39,9 @@ public class FilteringScreen extends AtumWaitingScreen {
     @Override
     public void tick() {
         if (done) continueWorldCreation();
+        if (failed) {
+            cancelWorldCreation();
+            client.openScreen(new FilterFailedScreen());
+        }
     }
 }
