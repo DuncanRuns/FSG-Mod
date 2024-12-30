@@ -30,6 +30,8 @@ public final class SeedManager {
     }
 
     public static void waitForSeed() {
+        if(!ModCompat.HAS_SEEDQUEUE) startNewFilterThread();
+
         Object queueAtStart;
         synchronized (SeedManager.class) {
             queueAtStart = resultQueue;
@@ -39,6 +41,8 @@ public final class SeedManager {
                 if (queueAtStart != resultQueue) {
                     return;
                 }
+                // If we are waiting for a seed and none are generating, we should force a seed to generate, so forceOne = true.
+                // Otherwise, just kick to make sure we are constantly filtering as required.
                 kick(currentlyFiltering == 0);
             }
             try {
@@ -53,30 +57,29 @@ public final class SeedManager {
      * Kicks the seed manager into generating seeds.
      */
     private static synchronized void kick(boolean forceOne) {
-        if (ModCompat.HAS_SEEDQUEUE) {
-            int maxCapacity = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
-            ModCompat.seedqueue$clampMaxCapacity(maxCapacity);
-            int maxGenerating = Math.min(maxCapacity, Math.max(ModCompat.seedqueue$getMaxConcurrently_onWall(), ModCompat.seedqueue$getMaxConcurrently()));
-
-            int toGenerate = Math.min(maxCapacity - ModCompat.seedqueue$getTotalEntries() - resultQueue.size(), maxGenerating) - currentlyFiltering;
-            toGenerate = Math.max(toGenerate, forceOne ? 1 : 0);
-            if (toGenerate == 0) return;
-            FSGMod.LOGGER.info("Starting {} filtering threads...", toGenerate);
-            startNewFilterThreads(toGenerate);
-        } else {
-            FSGMod.LOGGER.info("Starting 1 filtering threads...");
-            startNewFilterThreads(1);
+        if (!ModCompat.HAS_SEEDQUEUE) {
+            return;
         }
+
+        int maxCapacity = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
+        ModCompat.seedqueue$clampMaxCapacity(maxCapacity);
+        int maxGenerating = Math.min(maxCapacity, Math.max(ModCompat.seedqueue$getMaxConcurrently_onWall(), ModCompat.seedqueue$getMaxConcurrently()));
+
+        int toGenerate = Math.min(maxCapacity - ModCompat.seedqueue$getTotalEntries() - resultQueue.size(), maxGenerating) - currentlyFiltering;
+        toGenerate = Math.max(toGenerate, forceOne ? 1 : 0);
+        if (toGenerate == 0) return;
+        FSGMod.LOGGER.info("Starting {} filtering threads...", toGenerate);
+        startNewFilterThreads(toGenerate);
     }
 
-    private static synchronized void startNewFilterThreads(int total) {
+    private static void startNewFilterThreads(int total) {
         for (int i = 0; i < total; i++) {
-            currentlyFiltering++;
             startNewFilterThread();
         }
     }
 
-    private static void startNewFilterThread() {
+    private static synchronized void startNewFilterThread() {
+        currentlyFiltering++;
         new Thread(() -> {
             Queue<FSGFilterResult> queueToUse;
             synchronized (SeedManager.class) {
