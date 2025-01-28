@@ -118,15 +118,15 @@ public final class SeedManager {
     }
 
     public static boolean hasSeed() {
+        long currentTime = System.currentTimeMillis();
+        synchronized (SeedManager.class) {
+            resultQueue.removeIf(result -> Math.abs(result.generationTime - currentTime) > 60_000);
+        }
         kick(false);
         return !resultQueue.isEmpty();
     }
 
     public static FSGFilterResult getResult() {
-        long currentTime = System.currentTimeMillis();
-        synchronized (SeedManager.class) {
-            resultQueue.removeIf(result -> Math.abs(result.generationTime - currentTime) > 60_000);
-        }
         return resultQueue.poll();
     }
 
