@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.apache.commons.io.FileUtils;
 
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 public class ConfigScreen extends Screen {
     private String installedFilterText;
     private int y;
+    private ButtonWidget uninstallButton = null;
 
     public ConfigScreen() {
         super(new LiteralText("FSG Mod Config"));
@@ -51,7 +53,7 @@ public class ConfigScreen extends Screen {
         y += 10;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Configure Filter (Open Folder)"), b -> Util.getOperatingSystem().open(FSGMod.getFsgDir().toFile())));
         y += 25;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
+        uninstallButton = addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
             SeedManager.clear();
             try {
                 FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
@@ -60,7 +62,11 @@ public class ConfigScreen extends Screen {
                 FSGMod.logError("Failed to delete fsg directory", e);
             }
             client.openScreen(new ConfigScreen());
+        }, (button, matrices, mouseX, mouseY) -> {
+            if (button.active) return;
+            renderTooltip(matrices, Text.method_30163("The filter is running in the background..."), mouseX, mouseY);
         }));
+        uninstallButton.active = false;
     }
 
     private void initFilterNotInstalled(MinecraftClient client, int width) {
@@ -69,5 +75,12 @@ public class ConfigScreen extends Screen {
         y += 21;
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Install Filter..."), b -> client.openScreen(new FiltersScreen()))).active = (os == Util.OperatingSystem.WINDOWS || os == Util.OperatingSystem.LINUX || os == Util.OperatingSystem.OSX);
         y += 14;
+    }
+
+    @Override
+    public void tick() {
+        if (uninstallButton == null) return;
+        boolean filterRunning = SeedManager.getCurrentlyFiltering() > 0;
+        uninstallButton.active = !filterRunning;
     }
 }
