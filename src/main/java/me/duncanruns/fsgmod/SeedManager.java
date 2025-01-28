@@ -66,7 +66,7 @@ public final class SeedManager {
         int toGenerate = Math.min(maxCapacity - ModCompat.seedqueue$getTotalEntries() - resultQueue.size(), maxGenerating) - currentlyFiltering;
         toGenerate = Math.max(toGenerate, forceOne ? 1 : 0);
         if (toGenerate == 0) return;
-        FSGMod.LOGGER.info("Starting {} filtering threads...", toGenerate);
+        FSGMod.LOGGER.info("Starting {} filtering thread{}...", toGenerate, toGenerate > 1 ? "s" : "");
         startNewFilterThreads(toGenerate);
     }
 
