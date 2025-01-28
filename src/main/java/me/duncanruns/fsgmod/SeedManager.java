@@ -18,9 +18,13 @@ public final class SeedManager {
 
     private static Queue<FSGFilterResult> resultQueue = new ConcurrentLinkedQueue<>();
     private static final Queue<FSGFilterResult> resultCache = new ConcurrentLinkedQueue<>();
-    public static int currentlyFiltering = 0;
+    private static int currentlyFiltering = 0;
 
     private SeedManager() {
+    }
+
+    public static int getCurrentlyFiltering() {
+        return currentlyFiltering;
     }
 
     public static void clear() {

@@ -27,7 +27,7 @@ public class MinecraftClientMixin {
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/toast/ToastManager;draw(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.AFTER))
     private void drawFilterCount(boolean tick, CallbackInfo ci) {
         if (!FSGMod.DEBUG) return;
-        String text = "Filtering: " + SeedManager.currentlyFiltering;
+        String text = "Filtering: " + SeedManager.getCurrentlyFiltering();
         this.textRenderer.draw(new MatrixStack(), text, ((this.window.getScaledWidth() - this.textRenderer.getWidth(text)) / 2f), this.window.getScaledHeight() - 12, BackgroundHelper.ColorMixer.getArgb(255, 255, 255, 255));
     }
 }
