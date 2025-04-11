@@ -14,6 +14,7 @@ public class FSGModConfig {
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("fsgwm.json"); // wm = wrapper mod, not changing for simplicity
     private static FSGModConfig instance = new FSGModConfig();
 
+    public String onlineFilterCode = null;
     public String installedFilter = "Unknown Filter";
     public int maxGenerating = 1;
 

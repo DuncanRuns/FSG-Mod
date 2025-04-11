@@ -1,11 +1,13 @@
 package me.duncanruns.fsgmod.screen;
 
-import me.duncanruns.fsgmod.SeedManager;
+import me.duncanruns.fsgmod.FSGSeedProvider;
 import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+
+import java.util.concurrent.CompletableFuture;
 
 public class FilteringScreen extends AtumWaitingScreen {
     private boolean done = false;
@@ -24,12 +26,18 @@ public class FilteringScreen extends AtumWaitingScreen {
 
     @Override
     protected void init() {
+        CompletableFuture<String> sf = FSGSeedProvider.getSeedFuture();
         new Thread(() -> {
-            SeedManager.waitForSeed();
-            if (SeedManager.hasSeed()) {
-                done = true;
-            } else {
+            try {
+                sf.join();
+            } catch (Exception e) {
                 failed = true;
+                return;
+            }
+            if (sf.isCompletedExceptionally() || sf.isCancelled()) {
+                failed = true;
+            } else {
+                done = true;
             }
         }).start();
         final int bWidth = 100, bHeight = 20;

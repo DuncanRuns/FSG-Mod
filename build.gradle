@@ -25,9 +25,9 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation 'com.github.KingContaria:atum-rewrite:d8969c985f'
-    modImplementation 'com.github.KingContaria:SpeedrunAPI:v1.1'
-    modImplementation 'com.github.KingContaria:seedqueue:47549fed4d'
+    modImplementation 'com.github.KingContaria:atum-rewrite:v2.5'
+    modImplementation 'com.github.KingContaria:SpeedrunAPI:v1.2.1'
+    modImplementation 'com.github.KingContaria:seedqueue:v1.4.1'
 }
 
 processResources {

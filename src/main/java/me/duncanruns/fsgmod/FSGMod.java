@@ -60,6 +60,10 @@ public class FSGMod implements ModInitializer {
         return ArchUtil.getArch() == ArchUtil.Arch.ARM;
     }
 
+    public static boolean filterIsInstalled() {
+        return FSGModConfig.getInstance().onlineFilterCode != null || Files.isDirectory(getFsgDir());
+    }
+
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing");

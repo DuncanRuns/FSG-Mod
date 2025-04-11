@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.apache.commons.io.FileUtils;
 
@@ -39,7 +38,7 @@ public class ConfigScreen extends Screen {
     public void init(MinecraftClient client, int width, int height) {
         super.init(client, width, height);
         y = 75;
-        if (Files.isDirectory(FSGMod.getFsgDir())) {
+        if (FSGMod.filterIsInstalled()) {
             initFilterInstalled(client, width);
         } else {
             initFilterNotInstalled(client, width);
@@ -49,31 +48,45 @@ public class ConfigScreen extends Screen {
     }
 
     private void initFilterInstalled(MinecraftClient client, int width) {
-        installedFilterText = "Installed Filter: " + FSGModConfig.getInstance().installedFilter;
+        // Change the text based on whether it's an online filter or local filter
+        boolean online = FSGModConfig.getInstance().onlineFilterCode != null;
+        if (online) {
+            installedFilterText = "Selected Filter: " + FSGModConfig.getInstance().installedFilter;
+        } else {
+            installedFilterText = "Installed Filter: " + FSGModConfig.getInstance().installedFilter;
+        }
+
         y += 10;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Configure Filter (Open Folder)"), b -> Util.getOperatingSystem().open(FSGMod.getFsgDir().toFile())));
+        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText(online ? "Select Different Filter" : "Configure Filter (Open Folder)"), b -> {
+            if (online) {
+                client.openScreen(new OnlineFiltersScreen());
+            } else {
+                Util.getOperatingSystem().open(FSGMod.getFsgDir().toFile());
+            }
+        }));
         y += 25;
         uninstallButton = addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
             SeedManager.clear();
             try {
-                FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
+                if (Files.exists(FSGMod.getFsgDir()))
+                    FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
                 FSGModConfig.getInstance().installedFilter = "Unknown Filter";
+                FSGModConfig.getInstance().onlineFilterCode = null;
             } catch (IOException e) {
                 FSGMod.logError("Failed to delete fsg directory", e);
             }
             client.openScreen(new ConfigScreen());
         }, (button, matrices, mouseX, mouseY) -> {
             if (button.active) return;
-            renderTooltip(matrices, Text.method_30163("The filter is running in the background..."), mouseX, mouseY);
+            renderTooltip(matrices, new LiteralText("The filter is running in the background..."), mouseX, mouseY);
         }));
         uninstallButton.active = false;
     }
 
     private void initFilterNotInstalled(MinecraftClient client, int width) {
-        Util.OperatingSystem os = Util.getOperatingSystem();
-        installedFilterText = "No filter installed!";
+        installedFilterText = "No filter selected!";
         y += 21;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Install Filter..."), b -> client.openScreen(new FiltersScreen()))).active = (os == Util.OperatingSystem.WINDOWS || os == Util.OperatingSystem.LINUX || os == Util.OperatingSystem.OSX);
+        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Select Filter..."), b -> client.openScreen(new OnlineFiltersScreen())));
         y += 14;
     }
 

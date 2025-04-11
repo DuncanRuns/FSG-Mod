@@ -3,15 +3,17 @@ package me.duncanruns.fsgmod;
 import me.duncanruns.fsgmod.compat.ModCompat;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class SeedManager {
@@ -19,6 +21,9 @@ public final class SeedManager {
     private static Queue<FSGFilterResult> resultQueue = new ConcurrentLinkedQueue<>();
     private static final Queue<FSGFilterResult> resultCache = new ConcurrentLinkedQueue<>();
     private static int currentlyFiltering = 0;
+
+    private static CompletableFuture<String> mainThreadSF = null;
+    private static CompletableFuture<String> sqThreadSF = null;
 
     private SeedManager() {
     }
@@ -30,30 +35,6 @@ public final class SeedManager {
     public static void clear() {
         synchronized (SeedManager.class) {
             resultQueue = new ConcurrentLinkedQueue<>();
-        }
-    }
-
-    public static void waitForSeed() {
-        if (!ModCompat.HAS_SEEDQUEUE) startNewFilterThread();
-
-        Object queueAtStart;
-        synchronized (SeedManager.class) {
-            queueAtStart = resultQueue;
-        }
-        while (!hasSeed()) {
-            synchronized (SeedManager.class) {
-                if (queueAtStart != resultQueue) {
-                    return;
-                }
-                // If we are waiting for a seed and none are generating, we should force a seed to generate, so forceOne = true.
-                // Otherwise, just kick to make sure we are constantly filtering as required.
-                kick(currentlyFiltering == 0);
-            }
-            try {
-                Thread.sleep(25);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
@@ -82,7 +63,7 @@ public final class SeedManager {
 
     private static synchronized void startNewFilterThread() {
         currentlyFiltering++;
-        new Thread(() -> {
+        Thread thread = new Thread(() -> {
             Queue<FSGFilterResult> queueToUse;
             synchronized (SeedManager.class) {
                 queueToUse = resultQueue;
@@ -105,18 +86,33 @@ public final class SeedManager {
                 while (resultCache.size() > 200) resultCache.remove();
                 currentlyFiltering--;
                 if (Atum.isRunning()) kick(false);
+                onSeedAvailable();
             }
-        }, "filter-thread").start();
+        }, "filter-thread");
+        thread.setDaemon(true);
+        thread.start();
 
     }
 
+    private static synchronized void onSeedAvailable() {
+        if (!hasSeed()) return;
+        if (mainThreadSF != null) {
+            mainThreadSF.complete(Objects.requireNonNull(resultQueue.poll()).seed);
+            mainThreadSF = null;
+        }
+        if (sqThreadSF != null) {
+            sqThreadSF.complete(Objects.requireNonNull(resultQueue.poll()).seed);
+            sqThreadSF = null;
+        }
+    }
+
     private static synchronized void onFail() {
-        clear();
+        cancelAll();
         MinecraftClient.getInstance().execute(() -> {
             Atum.stopRunning();
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.world != null && client.player != null) {
-                client.inGameHud.getChatHud().addMessage(Text.method_30163("(FSG Mod) Filtering has failed!").copy().styled(style -> style.withColor(Formatting.RED).withColor(Formatting.BOLD)));
+                client.inGameHud.getChatHud().addMessage(new LiteralText("(FSG Mod) Filtering has failed!").copy().styled(style -> style.withColor(Formatting.RED).withColor(Formatting.BOLD)));
             }
         });
     }
@@ -128,10 +124,6 @@ public final class SeedManager {
         }
         kick(false);
         return !resultQueue.isEmpty();
-    }
-
-    public static FSGFilterResult getResult() {
-        return resultQueue.poll();
     }
 
 
@@ -165,5 +157,30 @@ public final class SeedManager {
         } catch (NumberFormatException e) {
             return OptionalLong.empty();
         }
+    }
+
+    public static synchronized void requestSeed(boolean mainThread, CompletableFuture<String> sf) {
+        if (!Atum.isRunning()) {
+            sf.cancel(true);
+            return;
+        }
+        kick(true);
+        if (hasSeed()) {
+            sf.complete(Objects.requireNonNull(resultQueue.poll()).seed);
+            return;
+        }
+        if (mainThread) {
+            mainThreadSF = sf;
+        } else {
+            sqThreadSF = sf;
+        }
+    }
+
+    public static synchronized void cancelAll() {
+        if (mainThreadSF != null) mainThreadSF.cancel(true);
+        if (sqThreadSF != null) sqThreadSF.cancel(true);
+        mainThreadSF = null;
+        sqThreadSF = null;
+        clear();
     }
 }

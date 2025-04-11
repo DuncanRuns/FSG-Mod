@@ -20,7 +20,7 @@ public class TokenCommand {
             return 0;
         }
         context.getSource().sendFeedback(
-                new LiteralText("Last token: ").append(
+                new LiteralText("FSG Token: ").append(
                         Texts.bracketed(new LiteralText(token).styled(style -> style.withColor(Formatting.GREEN)
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, token))
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("chat.copy.click")))))

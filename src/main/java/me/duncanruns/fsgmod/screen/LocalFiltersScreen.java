@@ -16,7 +16,7 @@ import net.minecraft.text.LiteralText;
 
 import java.io.IOException;
 
-public class FiltersScreen extends Screen {
+public class LocalFiltersScreen extends Screen {
     private static LiteralText failedText = new LiteralText("Failed to retrieve filters!");
     private final String minecraftVersion = SharedConstants.getGameVersion().getName();
     private boolean retrievedFilters = false;
@@ -24,8 +24,8 @@ public class FiltersScreen extends Screen {
     private boolean failed = false;
     private JsonArray filters = null;
 
-    protected FiltersScreen() {
-        super(new LiteralText("FSG Mod: Install Filter"));
+    protected LocalFiltersScreen() {
+        super(new LiteralText("FSG Mod: Install Local Filter"));
         new Thread(() -> {
             try {
                 JsonObject jsonObject = GrabUtil.grabJson("https://raw.githubusercontent.com/DuncanRuns/FSG-Mod/meta/meta.json");
@@ -35,6 +35,13 @@ public class FiltersScreen extends Screen {
                 failed = true;
             }
         }, "").start();
+    }
+
+    @Override
+    protected void init() {
+        if (retrievedFilters) {
+            setupButtons();
+        }
     }
 
     @Override
@@ -55,6 +62,7 @@ public class FiltersScreen extends Screen {
     }
 
     private void setupButtons() {
+        assert client != null;
         boolean anySupportedFilters = false;
         int y = 75;
         for (JsonElement el : filters) {
@@ -88,8 +96,10 @@ public class FiltersScreen extends Screen {
                             FileUtil.writeString(FSGMod.getFsgDir().resolve("run.sh"), filter.get("run.sh").getAsString());
                         }
                         FSGMod.setAllInFolderExecutable();
-                        FSGModConfig.getInstance().installedFilter = finalName;
-                        FSGModConfig.getInstance().maxGenerating = maxGenerating;
+                        FSGModConfig config = FSGModConfig.getInstance();
+                        config.installedFilter = finalName;
+                        config.maxGenerating = maxGenerating;
+                        config.onlineFilterCode = null;
                     } catch (IOException e) {
                         FSGMod.logError("Failed to install filter!", e);
                     }
