@@ -164,7 +164,11 @@ public final class SeedManager {
             sf.cancel(true);
             return;
         }
-        kick(true);
+        if (ModCompat.HAS_SEEDQUEUE) {
+            kick(true);
+        } else if (currentlyFiltering == 0) {
+            startNewFilterThread();
+        }
         if (hasSeed()) {
             sf.complete(Objects.requireNonNull(resultQueue.poll()).seed);
             return;
