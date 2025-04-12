@@ -20,7 +20,7 @@
   ],
   "depends": {
     "minecraft": "~1.16.1",
-    "atum": ">=2.3"
+    "atum": ">=2.3 <2.6"
   },
   "recommends": {
     "seedqueue": "*"
