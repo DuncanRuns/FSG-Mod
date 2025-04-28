@@ -2,6 +2,7 @@ package me.duncanruns.fsgmod;
 
 import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.util.GrabUtil;
+import me.voidxwalker.autoreset.Atum;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,7 @@ public final class FSGRunner {
     private FSGRunner() {
     }
 
+    @Nullable
     public static FSGFilterResult runFilter() throws IOException, InterruptedException {
         String onlineFilterCode = FSGModConfig.getInstance().onlineFilterCode;
         if (onlineFilterCode != null) {
@@ -29,11 +32,14 @@ public final class FSGRunner {
         return runFilterOffline();
     }
 
-    private static FSGFilterResult runFilterOnline(String onlineFilterCode) throws IOException, InterruptedException {
+    @Nullable
+    private static synchronized FSGFilterResult runFilterOnline(String onlineFilterCode) throws IOException, InterruptedException {
+        if (!Atum.isRunning()) return null;
         JsonObject json;
 
         do {
             try {
+                if (!Atum.isRunning()) return null;
                 json = GrabUtil.grabJson("https://fsgonlinedb.duncanruns.xyz/getSeed/" + onlineFilterCode);
             } catch (Exception e) {
                 // Wrap syntax exception in an io exception, which can technically be correct in this case.
@@ -60,7 +66,10 @@ public final class FSGRunner {
         return false;
     }
 
-    private static @Nullable FSGFilterResult runFilterOffline() throws IOException, InterruptedException {
+    @Nullable
+    private static FSGFilterResult runFilterOffline() throws IOException, InterruptedException {
+        if (!Atum.isRunning()) return null;
+
         String command = FSGMod.getRunPath().toString();
 
         Process process = new ProcessBuilder(command).directory(FSGMod.getFsgDir().toFile()).start();
@@ -69,15 +78,29 @@ public final class FSGRunner {
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String readL;
+
         while ((readL = reader.readLine()) != null) {
+            if (!Atum.isRunning()) {
+                process.destroy();
+                return null;
+            }
+
             lines.add(readL.trim());
             if ((readL = errReader.readLine()) != null) {
                 lines.add(readL.trim());
             }
         }
+
+        if (!Atum.isRunning()) {
+            process.destroy();
+            return null;
+        }
+
         process.waitFor();
 
         long generationTime = System.currentTimeMillis();
+
+        if (!Atum.isRunning()) return null;
 
         String seedOut = null;
         String tokenOut = "Token Unavailable";

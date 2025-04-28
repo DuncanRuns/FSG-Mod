@@ -2,6 +2,7 @@ package me.duncanruns.fsgmod.mixin;
 
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.SeedManager;
+import me.duncanruns.fsgmod.compat.ModCompat;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.BackgroundHelper;
@@ -27,7 +28,12 @@ public class MinecraftClientMixin {
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/toast/ToastManager;draw(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.AFTER))
     private void drawFilterCount(boolean tick, CallbackInfo ci) {
         if (!FSGMod.DEBUG) return;
-        String text = "Filtering: " + SeedManager.getCurrentlyFiltering();
+        String text = "Filtering: " + SeedManager.getCurrentlyFiltering() + ", SQ Entries: " + ModCompat.seedqueue$getTotalEntries();
         this.textRenderer.draw(new MatrixStack(), text, ((this.window.getScaledWidth() - this.textRenderer.getWidth(text)) / 2f), this.window.getScaledHeight() - 12, BackgroundHelper.ColorMixer.getArgb(255, 255, 255, 255));
+    }
+
+    @Inject(method = "joinWorld", at = @At("HEAD"))
+    private void onJoinWorld(CallbackInfo ci) {
+        SeedManager.hasSeed();
     }
 }

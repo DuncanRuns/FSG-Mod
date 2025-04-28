@@ -2,9 +2,6 @@ package me.duncanruns.fsgmod;
 
 import me.duncanruns.fsgmod.compat.ModCompat;
 import me.voidxwalker.autoreset.Atum;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,25 +29,23 @@ public final class SeedManager {
         return currentlyFiltering;
     }
 
-    public static void clear() {
-        synchronized (SeedManager.class) {
-            resultQueue = new ConcurrentLinkedQueue<>();
-        }
+    public static synchronized void clear() {
+        resultQueue = new ConcurrentLinkedQueue<>();
     }
 
     /**
      * Kicks the seed manager into generating seeds.
      */
-    private static synchronized void kick(boolean forceOne) {
+    private static synchronized void kick() {
         if (!ModCompat.HAS_SEEDQUEUE) return;
+        if (!Atum.isRunning()) return;
 
         int maxCapacity = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
         ModCompat.seedqueue$clampMaxCapacity(maxCapacity);
         int maxGenerating = Math.min(maxCapacity, Math.max(ModCompat.seedqueue$getMaxConcurrently_onWall(), ModCompat.seedqueue$getMaxConcurrently()));
 
         int toGenerate = Math.min(maxCapacity - ModCompat.seedqueue$getTotalEntries() - resultQueue.size(), maxGenerating) - currentlyFiltering;
-        toGenerate = Math.max(toGenerate, forceOne ? 1 : 0);
-        if (toGenerate == 0) return;
+        if (toGenerate <= 0) return;
         FSGMod.LOGGER.info("Starting {} filtering thread{}...", toGenerate, toGenerate > 1 ? "s" : "");
         startNewFilterThreads(toGenerate);
     }
@@ -76,16 +71,19 @@ public final class SeedManager {
                     currentlyFiltering--;
                     if (resultQueue != queueToUse) return;
                     FSGMod.logError("Failed to run filter!", e);
-                    onFail();
+                    completeFailure(e);
                 }
                 return;
             }
             synchronized (SeedManager.class) {
+                if (result == null) {
+                    currentlyFiltering--;
+                    return;
+                }
                 resultCache.add(result);
                 queueToUse.add(result);
                 while (resultCache.size() > 200) resultCache.remove();
                 currentlyFiltering--;
-                if (Atum.isRunning()) kick(false);
                 onSeedAvailable();
             }
         }, "filter-thread");
@@ -94,7 +92,24 @@ public final class SeedManager {
 
     }
 
+    private static synchronized void clearStaleFutures() {
+        if (mainThreadSF != null && (mainThreadSF.isDone() || mainThreadSF.isCancelled() || mainThreadSF.isCompletedExceptionally())) {
+            mainThreadSF = null;
+        }
+        if (sqThreadSF != null && (sqThreadSF.isDone() || sqThreadSF.isCancelled() || sqThreadSF.isCompletedExceptionally())) {
+            sqThreadSF = null;
+        }
+    }
+
+    private static void completeFailure(Exception e) {
+        clearStaleFutures();
+        if (mainThreadSF != null) mainThreadSF.completeExceptionally(e);
+        else if (sqThreadSF != null) sqThreadSF.completeExceptionally(e);
+        else if (Atum.isRunning()) Atum.SEED_FAILURES.add(e);
+    }
+
     private static synchronized void onSeedAvailable() {
+        clearStaleFutures();
         if (!hasSeed()) return;
         if (mainThreadSF != null) {
             mainThreadSF.complete(Objects.requireNonNull(resultQueue.poll()).seed);
@@ -106,23 +121,12 @@ public final class SeedManager {
         }
     }
 
-    private static synchronized void onFail() {
-        cancelAll();
-        MinecraftClient.getInstance().execute(() -> {
-            Atum.stopRunning();
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.world != null && client.player != null) {
-                client.inGameHud.getChatHud().addMessage(new LiteralText("(FSG Mod) Filtering has failed!").copy().styled(style -> style.withColor(Formatting.RED).withColor(Formatting.BOLD)));
-            }
-        });
-    }
-
     public static boolean hasSeed() {
         long currentTime = System.currentTimeMillis();
         synchronized (SeedManager.class) {
             resultQueue.removeIf(result -> Math.abs(result.generationTime - currentTime) > 60_000);
         }
-        kick(false);
+        kick();
         return !resultQueue.isEmpty();
     }
 
@@ -160,31 +164,17 @@ public final class SeedManager {
     }
 
     public static synchronized void requestSeed(boolean mainThread, CompletableFuture<String> sf) {
-        if (!Atum.isRunning()) {
-            sf.cancel(true);
-            return;
-        }
-        if (ModCompat.HAS_SEEDQUEUE) {
-            kick(true);
-        } else if (currentlyFiltering == 0) {
-            startNewFilterThread();
-        }
-        if (hasSeed()) {
+        clearStaleFutures();
+        if (hasSeed()) { // hasSeed will also kick it if needed
             sf.complete(Objects.requireNonNull(resultQueue.poll()).seed);
             return;
+        } else if (!ModCompat.HAS_SEEDQUEUE && currentlyFiltering == 0) {
+            startNewFilterThread();
         }
         if (mainThread) {
             mainThreadSF = sf;
         } else {
             sqThreadSF = sf;
         }
-    }
-
-    public static synchronized void cancelAll() {
-        if (mainThreadSF != null) mainThreadSF.cancel(true);
-        if (sqThreadSF != null) sqThreadSF.cancel(true);
-        mainThreadSF = null;
-        sqThreadSF = null;
-        clear();
     }
 }

@@ -1,36 +1,27 @@
 package me.duncanruns.fsgmod;
 
+import me.duncanruns.fsgmod.screen.FilterFailedScreen;
 import me.duncanruns.fsgmod.screen.FilteringScreen;
-import me.voidxwalker.autoreset.Atum;
 import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
 import me.voidxwalker.autoreset.api.seedprovider.SeedProvider;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 public class FSGSeedProvider implements SeedProvider {
-    // To be replaced by a better system later
-    ThreadLocal<CompletableFuture<String>> sftl = new ThreadLocal<>();
 
     @Override
-    public Optional<String> getSeed() {
-        CompletableFuture<String> sf = sftl.get();
-        if (sf != null && sf.isDone()) {
-            sftl.remove();
-            try {
-                return Optional.of(sf.join());
-            } catch (Exception e) {
-                FSGMod.logError("Failed to get seed from completable future", e);
-                return Optional.of("");
-            }
-        }
-
-        sf = new CompletableFuture<>();
+    public CompletableFuture<String> requestSeed() {
+        CompletableFuture<String> sf = new CompletableFuture<>();
         SeedManager.requestSeed(MinecraftClient.getInstance().isOnThread(), sf);
-        sftl.set(sf);
-        return Optional.empty();
+        return sf;
     }
+
 
     @Override
     public boolean shouldShowSeed() {
@@ -38,16 +29,19 @@ public class FSGSeedProvider implements SeedProvider {
     }
 
     @Override
-    public void waitForSeed() {
-        sftl.get().join();
+    public Optional<AtumWaitingScreen> getWaitingScreen() {
+        return Optional.of(new FilteringScreen());
     }
 
     @Override
-    public AtumWaitingScreen getWaitingScreen() {
-        return new FilteringScreen();
-    }
+    public void onFail(@Nullable Throwable ex) {
+        if (ex instanceof CancellationException) return;
 
-    public static CompletableFuture<String> getSeedFuture() {
-        return ((FSGSeedProvider) Atum.getSeedProvider()).sftl.get();
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world != null && client.player != null) {
+            client.inGameHud.getChatHud().addMessage(new LiteralText("(FSG Mod) Filtering has failed!").copy().styled(style -> style.withColor(Formatting.RED).withColor(Formatting.BOLD)));
+        } else {
+            client.openScreen(new FilterFailedScreen());
+        }
     }
 }
