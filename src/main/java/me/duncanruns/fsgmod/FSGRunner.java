@@ -1,8 +1,7 @@
 package me.duncanruns.fsgmod;
 
-import com.google.gson.JsonObject;
-import me.duncanruns.fsgmod.util.GrabUtil;
 import me.voidxwalker.autoreset.Atum;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,35 +33,21 @@ public final class FSGRunner {
     @Nullable
     private static synchronized FSGFilterResult runFilterOnline(String onlineFilterCode) throws IOException, InterruptedException {
         if (!Atum.isRunning()) return null;
-        JsonObject json;
+        FsgOnlineDb.SeedData data = null;
 
         do {
             try {
                 if (!Atum.isRunning()) return null;
-                json = GrabUtil.grabJson("https://fsgonlinedb.duncanruns.xyz/getSeed/" + onlineFilterCode);
+                data = FsgOnlineDb.getSeed(onlineFilterCode).join();
+            } catch (FsgOnlineDb.CooldownException e) {
+                sleep(e.cooldownMs);
             } catch (Exception e) {
                 // Wrap syntax exception in an io exception, which can technically be correct in this case.
-                throw new IOException(e);
+                throw new IOException(ExceptionUtils.getRootCause(e));
             }
-        } while (checkCooldown(json));
+        } while (data == null);
 
-        String responseType = json.get("type").getAsString();
-        switch (responseType) {
-            case "SUCCESS":
-                return new FSGFilterResult(json.getAsJsonObject("data").get("seed").getAsString(), json.getAsJsonObject("data").get("token").getAsString(), System.currentTimeMillis());
-            case "ERROR":
-                throw new IOException("Error from fsgonlinedb: " + json.get("errorMessage").getAsString());
-            default:
-                throw new IOException("Unexpected response from fsgonlinedb");
-        }
-    }
-
-    private static boolean checkCooldown(JsonObject jsonObject) throws InterruptedException {
-        if (jsonObject.get("type").getAsString().equals("COOLDOWN")) {
-            sleep(jsonObject.get("cooldown").getAsLong());
-            return true;
-        }
-        return false;
+        return new FSGFilterResult(data.seed, data.token, System.currentTimeMillis());
     }
 
     @Nullable
