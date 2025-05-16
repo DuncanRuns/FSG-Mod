@@ -26,7 +26,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modImplementation 'com.github.DuncanRuns:atum:47d4625356'
-    modImplementation 'com.github.KingContaria:SpeedrunAPI:v1.2.1'
+    modImplementation 'com.github.KingContaria:SpeedrunAPI:ce922322ff'
     modCompileOnly 'com.github.DuncanRuns:seedqueue:c6195fe07a'
 }
 
