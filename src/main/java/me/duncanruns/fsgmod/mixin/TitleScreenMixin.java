@@ -1,5 +1,8 @@
 package me.duncanruns.fsgmod.mixin;
 
+import me.duncanruns.fsgmod.FSGMod;
+import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.FSGOnlineDB;
 import me.duncanruns.fsgmod.screen.ConfigScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;

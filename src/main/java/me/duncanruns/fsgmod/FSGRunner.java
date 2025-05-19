@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,27 +24,30 @@ public final class FSGRunner {
 
     @Nullable
     public static FSGFilterResult runFilter() throws IOException, InterruptedException {
-        String onlineFilterCode = FSGModConfig.getInstance().onlineFilterCode;
-        if (onlineFilterCode != null) {
-            return runFilterOnline(onlineFilterCode);
+        if (!FSGMod.filterSelectedOrInstalled()) throw new IOException("No filter installed!");
+        if (LocalFilter.isInstalled()) {
+            return runFilterOffline();
         }
-        return runFilterOffline();
+        return runFilterOnline(FSGModConfig.getInstance().selectedOnlineFilters);
     }
 
     @Nullable
-    private static synchronized FSGFilterResult runFilterOnline(String onlineFilterCode) throws IOException, InterruptedException {
+    private static synchronized FSGFilterResult runFilterOnline(Set<String> filterIds) throws IOException, InterruptedException {
         if (!Atum.isRunning()) return null;
-        FsgOnlineDb.SeedData data = null;
+        FSGOnlineDB.SeedData data = null;
 
         do {
             try {
                 if (!Atum.isRunning()) return null;
-                data = FsgOnlineDb.getSeed(onlineFilterCode).join();
-            } catch (FsgOnlineDb.CooldownException e) {
-                sleep(e.cooldownMs);
+                data = FSGOnlineDB.getSeed(filterIds).join();
             } catch (Exception e) {
-                // Wrap syntax exception in an io exception, which can technically be correct in this case.
-                throw new IOException(ExceptionUtils.getRootCause(e));
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                if (rootCause instanceof FSGOnlineDB.CooldownException) {
+                    sleep(((FSGOnlineDB.CooldownException) rootCause).cooldownMs);
+                } else {
+                    // Wrap syntax exception in an io exception, which can technically be correct in this case.
+                    throw new IOException(rootCause);
+                }
             }
         } while (data == null);
 
@@ -54,9 +58,9 @@ public final class FSGRunner {
     private static FSGFilterResult runFilterOffline() throws IOException, InterruptedException {
         if (!Atum.isRunning()) return null;
 
-        String command = FSGMod.getRunPath().toString();
+        String command = LocalFilter.getRunPath().toString();
 
-        Process process = new ProcessBuilder(command).directory(FSGMod.getFsgDir().toFile()).start();
+        Process process = new ProcessBuilder(command).directory(LocalFilter.getFsgDir().toFile()).start();
 
         List<String> lines = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

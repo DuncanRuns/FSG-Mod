@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.LocalFilter;
 import me.duncanruns.fsgmod.SeedManager;
 import me.duncanruns.fsgmod.util.FileUtil;
 import me.duncanruns.fsgmod.util.GrabUtil;
@@ -15,9 +16,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 public class LocalFiltersScreen extends Screen {
-    private static LiteralText failedText = new LiteralText("Failed to retrieve filters!");
+    private static String failedText = "Failed to retrieve filters!";
     private final String minecraftVersion = SharedConstants.getGameVersion().getName();
     private boolean retrievedFilters = false;
     private boolean addedFilterButtons = false;
@@ -32,6 +34,7 @@ public class LocalFiltersScreen extends Screen {
                 filters = jsonObject.getAsJsonArray("filters");
                 retrievedFilters = true;
             } catch (Exception e) {
+                FSGMod.logError("Failed to load filters!", e);
                 failed = true;
             }
         }, "").start();
@@ -49,16 +52,23 @@ public class LocalFiltersScreen extends Screen {
         renderBackground(matrices);
         int y = 15;
         this.drawCenteredText(matrices, this.textRenderer, this.title, width / 2, y, 0xFFFFFF);
-        if (failed) {
-            y += 60;
-            this.drawCenteredText(matrices, this.textRenderer, failedText, width / 2, y, 0xFFFFFF);
-            return;
-        }
         if (!addedFilterButtons && retrievedFilters) {
             setupButtons();
         }
 
         super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void tick() {
+        if (failed) {
+            client.openScreen(new SimpleTextScreen(new LiteralText("Failed to load filters!"), failedText, true, s -> {
+                // Retry button
+                return new ButtonWidget(s.width / 2 - 100, s.height / 6 + 140, 200, 20, new LiteralText("Retry"), b ->
+                        client.openScreen(new LocalFiltersScreen())
+                );
+            }));
+        }
     }
 
     private void setupButtons() {
@@ -90,16 +100,18 @@ public class LocalFiltersScreen extends Screen {
                     SeedManager.clear();
                     try {
                         if (filter.has("run.bat")) {
-                            FileUtil.writeString(FSGMod.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());
+                            FileUtil.writeString(LocalFilter.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());
                         }
                         if (filter.has("run.sh")) {
-                            FileUtil.writeString(FSGMod.getFsgDir().resolve("run.sh"), filter.get("run.sh").getAsString());
+                            FileUtil.writeString(LocalFilter.getFsgDir().resolve("run.sh"), filter.get("run.sh").getAsString());
                         }
                         FSGMod.setAllInFolderExecutable();
                         FSGModConfig config = FSGModConfig.getInstance();
-                        config.installedFilter = finalName;
-                        config.maxGenerating = maxGenerating;
-                        config.onlineFilterCode = null;
+                        config.selectedOnlineFilters = new HashSet<>();
+                        config.selectedOnlineFilterName = null;
+                        FSGModConfig.trySave();
+                        LocalFilter.writeData(maxGenerating, finalName);
+
                     } catch (IOException e) {
                         FSGMod.logError("Failed to install filter!", e);
                     }
@@ -112,7 +124,8 @@ public class LocalFiltersScreen extends Screen {
             addedFilterButtons = true;
         } else {
             failed = true;
-            failedText = new LiteralText("No filters are available for this version of Minecraft.");
+            failedText = "No filters are available for this version of Minecraft.";
+            client.openScreen(new SimpleTextScreen(new LiteralText("No Filters Found"), failedText, true));
         }
     }
 }

@@ -1,6 +1,7 @@
 package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.LocalFilter;
 import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -8,13 +9,11 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 
 public class FilteringScreen extends AtumWaitingScreen {
-    private boolean done = false;
-    private boolean failed = false;
     private final String displayText;
 
     public FilteringScreen() {
         super(new LiteralText("Filtering Seeds..."));
-        displayText = FSGModConfig.getInstance().onlineFilterCode != null ? "Retrieving Seed..." : "Filtering Seeds...";
+        displayText = LocalFilter.isInstalled() ? "Filtering Seed..." : "Requesting Seed...";
     }
 
     @Override

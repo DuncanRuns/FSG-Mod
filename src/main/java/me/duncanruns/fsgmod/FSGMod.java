@@ -4,45 +4,26 @@ import me.duncanruns.fsgmod.util.ArchUtil;
 import me.voidxwalker.autoreset.Atum;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.MinecraftVersion;
 import net.minecraft.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class FSGMod implements ModInitializer {
 
     public static final Logger LOGGER = LogManager.getLogger("fsg-mod");
-    public static final Util.OperatingSystem OPERATING_SYSTEM = Util.getOperatingSystem();
     public static final String VERSION = FabricLoader.getInstance().getModContainer("fsg-mod").get().getMetadata().getVersion().getFriendlyString();
 
     public static final boolean DEBUG = false;
-
-    public static Path getFsgDir() {
-        return getGameDir().resolve("fsg");
-    }
-
-    public static Path getGameDir() {
-        return FabricLoader.getInstance().getGameDir().toAbsolutePath();
-    }
-
-    public static Path getRunPath() {
-        Path runForThisVersionPath = FSGMod.getFsgDir().resolve("run." + MinecraftVersion.field_25319.getName() + (FSGMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
-        if (Files.exists(runForThisVersionPath)) {
-            return runForThisVersionPath;
-        }
-        return FSGMod.getFsgDir().resolve("run" + (FSGMod.OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS) ? ".bat" : ".sh"));
-    }
 
     public static void logError(String message, Throwable t) {
         LOGGER.error(message, t);
     }
 
     public static void setAllInFolderExecutable() throws IOException {
-        Files.walk(getFsgDir()).filter(Files::isRegularFile).forEach(path -> path.toFile().setExecutable(true));
+        Files.walk(LocalFilter.getFsgDir()).filter(Files::isRegularFile).forEach(path -> path.toFile().setExecutable(true));
     }
 
     public static String getOS3LetterCode() {
@@ -60,8 +41,14 @@ public class FSGMod implements ModInitializer {
         return ArchUtil.getArch() == ArchUtil.Arch.ARM;
     }
 
-    public static boolean filterIsInstalled() {
-        return FSGModConfig.getInstance().onlineFilterCode != null || Files.isDirectory(getFsgDir());
+    public static boolean filterSelectedOrInstalled() {
+        return !FSGModConfig.getInstance().selectedOnlineFilters.isEmpty() || LocalFilter.isInstalled();
+    }
+
+    public static int getMaxGenerating() throws IOException {
+        if (!filterSelectedOrInstalled()) return 30;
+        if (LocalFilter.isInstalled()) return LocalFilter.getMaxGenerating();
+        return FSGOnlineDB.getMaxGenerating(FSGModConfig.getInstance().selectedOnlineFilters).join();
     }
 
     @Override
@@ -70,6 +57,19 @@ public class FSGMod implements ModInitializer {
         FSGModConfig.tryLoad();
         FSGModConfig.trySave();
 
+        if (LocalFilter.isInstalled() && !LocalFilter.isValid()) {
+            try {
+                LocalFilter.writeData(1, "Unknown Filter");
+            } catch (IOException e) {
+                logError("Failed to write local filter data!", e);
+            }
+        }
+
         Atum.setSeedProvider(new FSGSeedProvider());
+
+        FSGOnlineDB.getFilters().exceptionally(throwable -> {
+            FSGMod.logError("Failed to load filters!", throwable);
+            return null;
+        });
     }
 }

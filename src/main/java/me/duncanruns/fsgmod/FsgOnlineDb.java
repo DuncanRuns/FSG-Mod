@@ -5,8 +5,9 @@ import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.util.GrabUtil;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 // Class to interact with fsgonlinedb.duncanruns.xyz
-public class FsgOnlineDb {
+public class FSGOnlineDB {
     private static final String BASE_URL = "https://fsgonlinedb.duncanruns.xyz";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static JsonArray cachedFilters = null;
@@ -58,12 +59,12 @@ public class FsgOnlineDb {
      * @param filterCodes List of filter codes to choose from
      * @return A future that will complete with the seed data
      */
-    public static CompletableFuture<SeedData> getSeed(List<String> filterCodes) {
+    public static CompletableFuture<SeedData> getSeed(Collection<String> filterCodes) {
         if (filterCodes == null || filterCodes.isEmpty()) {
             throw new IllegalArgumentException("No filter codes provided");
         }
         if (filterCodes.size() == 1) {
-            return getSeed(filterCodes.get(0));
+            return getSeed(filterCodes.iterator().next());
         }
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -192,5 +193,15 @@ public class FsgOnlineDb {
                         .findFirst()
                         .orElse(null)
         );
+    }
+
+    public static CompletableFuture<Integer> getMaxGenerating(Collection<String> filterCodes) {
+        return getFilters(false)
+                .thenApply(
+                        filters -> filters.stream()
+                                .filter(filter -> filterCodes.contains(filter.id))
+                                .mapToInt(filter -> filter.maxGenerating)
+                                .min().orElse(1)
+                );
     }
 }

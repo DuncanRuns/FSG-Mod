@@ -40,7 +40,14 @@ public final class SeedManager {
         if (!ModCompat.HAS_SEEDQUEUE) return;
         if (!Atum.isRunning()) return;
 
-        int maxCapacity = MathHelper.clamp(FSGModConfig.getInstance().maxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
+        int filterMaxGenerating;
+        try {
+            filterMaxGenerating = FSGMod.getMaxGenerating();
+        } catch (Exception e) {
+            completeFailure(new IOException("Failed to get max generating!", e));
+            return;
+        }
+        int maxCapacity = MathHelper.clamp(filterMaxGenerating, 1, ModCompat.seedqueue$getMaxCapacity());
         ModCompat.seedqueue$clampMaxCapacity(maxCapacity);
         int maxGenerating = Math.min(maxCapacity, Math.max(ModCompat.seedqueue$getMaxConcurrently_onWall(), ModCompat.seedqueue$getMaxConcurrently()));
 
@@ -129,7 +136,6 @@ public final class SeedManager {
         kick();
         return !resultQueue.isEmpty();
     }
-
 
     public static Optional<FSGFilterResult> getResultForSeed(long seed) {
         return resultCache.stream().filter(result -> {
