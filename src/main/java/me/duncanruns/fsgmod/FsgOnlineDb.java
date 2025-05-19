@@ -3,16 +3,22 @@ package me.duncanruns.fsgmod;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.util.GrabUtil;
+import me.voidxwalker.autoreset.Atum;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static java.lang.Thread.sleep;
 
 // Class to interact with fsgonlinedb.duncanruns.xyz
 public class FSGOnlineDB {
@@ -142,6 +148,29 @@ public class FSGOnlineDB {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Nullable
+    static synchronized FSGFilterResult runFilterOnline(Set<String> filterIds) throws IOException, InterruptedException {
+        if (!Atum.isRunning()) return null;
+        SeedData data = null;
+
+        do {
+            try {
+                if (!Atum.isRunning()) return null;
+                data = getSeed(filterIds).join();
+            } catch (Exception e) {
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                if (rootCause instanceof CooldownException) {
+                    sleep(((CooldownException) rootCause).cooldownMs);
+                } else {
+                    // Wrap exception in an io exception, which can technically be correct in this case.
+                    throw new IOException(rootCause);
+                }
+            }
+        } while (data == null);
+
+        return new FSGFilterResult(data.seed, data.token, System.currentTimeMillis());
     }
 
     public static class SeedData {

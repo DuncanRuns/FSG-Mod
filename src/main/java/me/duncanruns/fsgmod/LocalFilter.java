@@ -1,15 +1,26 @@
 package me.duncanruns.fsgmod;
 
+import me.voidxwalker.autoreset.Atum;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.MinecraftVersion;
 import net.minecraft.util.Util;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class LocalFilter {
+
+    private static final Pattern SEED_PATTERN = Pattern.compile("[sS]eed.*: ?(-?\\d+)");
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("[tT]oken.*?: ?(.+)");
 
     private LocalFilter() {
     }
@@ -69,6 +80,73 @@ public final class LocalFilter {
         } catch (Exception e) {
             return "Unknown Filter";
         }
+    }
+
+    @Nullable
+    static FSGFilterResult run() throws IOException, InterruptedException {
+        if (!Atum.isRunning()) return null;
+
+        String command = getRunPath().toString();
+
+        Process process = new ProcessBuilder(command).directory(getFsgDir().toFile()).start();
+
+        List<String> lines = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        String readL;
+
+        while ((readL = reader.readLine()) != null) {
+            if (!Atum.isRunning()) {
+                process.destroy();
+                return null;
+            }
+
+            lines.add(readL.trim());
+            if ((readL = errReader.readLine()) != null) {
+                lines.add(readL.trim());
+            }
+        }
+
+        if (!Atum.isRunning()) {
+            process.destroy();
+            return null;
+        }
+
+        process.waitFor();
+
+        long generationTime = System.currentTimeMillis();
+
+        if (!Atum.isRunning()) return null;
+
+        String seedOut = null;
+        String tokenOut = "Token Unavailable";
+
+        for (String line : lines) {
+            if (!line.contains(":")) {
+                continue;
+            }
+
+            Matcher matcher;
+
+            matcher = SEED_PATTERN.matcher(line);
+            if (matcher.find()) {
+                seedOut = matcher.group(1);
+                continue;
+            }
+
+            matcher = TOKEN_PATTERN.matcher(line);
+            if (matcher.find()) {
+                tokenOut = matcher.group(1);
+            }
+        }
+
+        if (seedOut == null) {
+            FSGMod.LOGGER.info("No seed was returned, process output:");
+            lines.forEach(FSGMod.LOGGER::info);
+            return null;
+        }
+
+        return new FSGFilterResult(seedOut, tokenOut, generationTime);
     }
 
     private static class FilterData {

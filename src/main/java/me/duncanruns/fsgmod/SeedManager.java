@@ -4,6 +4,7 @@ import me.duncanruns.fsgmod.compat.ModCompat;
 import me.voidxwalker.autoreset.Atum;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -72,7 +73,7 @@ public final class SeedManager {
             }
             FSGFilterResult result;
             try {
-                result = FSGRunner.runFilter();
+                result = runFilter();
             } catch (IOException | InterruptedException e) {
                 synchronized (SeedManager.class) {
                     currentlyFiltering--;
@@ -182,5 +183,14 @@ public final class SeedManager {
         } else {
             sqThreadSF = sf;
         }
+    }
+
+    @Nullable
+    public static FSGFilterResult runFilter() throws IOException, InterruptedException {
+        if (!FSGMod.filterSelectedOrInstalled()) throw new IOException("No filter installed!");
+        if (LocalFilter.isInstalled()) {
+            return LocalFilter.run();
+        }
+        return FSGOnlineDB.runFilterOnline(FSGModConfig.getInstance().selectedOnlineFilters);
     }
 }
