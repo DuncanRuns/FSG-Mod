@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.LocalFilter;
-import me.duncanruns.fsgmod.SeedManager;
 import me.duncanruns.fsgmod.util.FileUtil;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.SharedConstants;
@@ -97,7 +96,6 @@ public class LocalFiltersScreen extends Screen {
 
             addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText(name), b -> {
                 client.openScreen(new DownloadingScreen(download.get(osCode).getAsString(), new ConfigScreen(), () -> {
-                    SeedManager.clear();
                     try {
                         if (filter.has("run.bat")) {
                             FileUtil.writeString(LocalFilter.getFsgDir().resolve("run.bat"), filter.get("run.bat").getAsString());

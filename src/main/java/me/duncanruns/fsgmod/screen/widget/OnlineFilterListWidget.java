@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FilterListWidget extends ElementListWidget<FilterListWidget.FilterEntry> {
+public class OnlineFilterListWidget extends ElementListWidget<OnlineFilterListWidget.FilterEntry> {
     private final int rowWidth;
 
     private final Set<FSGOnlineDB.FilterInfo> selectedFilters;
 
-    public FilterListWidget(MinecraftClient minecraftClient, int i, int j, int k, int l, List<FSGOnlineDB.FilterInfo> filters, Set<String> selectedFiltersIds) {
+    public OnlineFilterListWidget(MinecraftClient minecraftClient, int i, int j, int k, int l, List<FSGOnlineDB.FilterInfo> filters, Set<String> selectedFiltersIds) {
         super(minecraftClient, i, j, k, l, 25);
         this.rowWidth = filters.stream().mapToInt(filterInfo -> minecraftClient.textRenderer.getWidth(filterInfo.displayName)).max().orElse(-25) + 25;
         this.selectedFilters = filters.stream().filter(fi -> selectedFiltersIds.contains(fi.id)).collect(Collectors.toCollection(HashSet::new));
@@ -53,7 +53,7 @@ public class FilterListWidget extends ElementListWidget<FilterListWidget.FilterE
 
         public FilterEntry(FSGOnlineDB.FilterInfo filter) {
             this.filter = filter;
-            this.button = new ButtonWidget(FilterListWidget.this.rowWidth / 2, 0, 20, 20, new LiteralText(""), b -> {
+            this.button = new ButtonWidget(OnlineFilterListWidget.this.rowWidth / 2, 0, 20, 20, new LiteralText(""), b -> {
                 if (selectedFilters.contains(filter)) {
                     selectedFilters.remove(filter);
                     b.setMessage(new LiteralText(""));
@@ -65,7 +65,7 @@ public class FilterListWidget extends ElementListWidget<FilterListWidget.FilterE
                 @Override
                 public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                     // The button is also hovered if the entire entry is hovered
-                    this.hovered |= FilterListWidget.this.hoveredElement(mouseX, mouseY).orElse(null) == FilterEntry.this;
+                    this.hovered |= OnlineFilterListWidget.this.hoveredElement(mouseX, mouseY).orElse(null) == FilterEntry.this;
                     super.renderButton(matrices, mouseX, mouseY, delta);
                 }
             };

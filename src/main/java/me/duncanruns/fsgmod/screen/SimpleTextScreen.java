@@ -7,7 +7,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SimpleTextScreen extends Screen {
@@ -28,7 +27,8 @@ public class SimpleTextScreen extends Screen {
 
     @Override
     protected void init() {
-        if(buttonProvider != null) {
+        assert client != null;
+        if (buttonProvider != null) {
             this.addButton(buttonProvider.apply(this));
         }
         if (exitable)

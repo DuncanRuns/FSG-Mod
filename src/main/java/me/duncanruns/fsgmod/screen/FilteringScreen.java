@@ -1,6 +1,5 @@
 package me.duncanruns.fsgmod.screen;
 
-import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.LocalFilter;
 import me.voidxwalker.autoreset.api.seedprovider.AtumWaitingScreen;
 import net.minecraft.client.gui.screen.ScreenTexts;

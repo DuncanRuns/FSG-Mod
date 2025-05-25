@@ -3,7 +3,6 @@ package me.duncanruns.fsgmod.screen;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.LocalFilter;
-import me.duncanruns.fsgmod.SeedManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -71,7 +70,6 @@ public class ConfigScreen extends Screen {
         y += 25;
         if (online) return;
         uninstallButton = addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
-            SeedManager.clear();
             try {
                 if (LocalFilter.isInstalled())
                     FileUtils.deleteDirectory(LocalFilter.getFsgDir().toFile());
@@ -104,7 +102,6 @@ public class ConfigScreen extends Screen {
     @Override
     public void tick() {
         if (uninstallButton == null) return;
-        boolean filterRunning = SeedManager.getCurrentlyFiltering() > 0;
-        uninstallButton.active = !filterRunning;
+        uninstallButton.active = !LocalFilter.running;
     }
 }

@@ -25,9 +25,18 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation 'com.github.DuncanRuns:atum:47d4625356'
-    modImplementation 'com.github.KingContaria:SpeedrunAPI:ce922322ff'
-    modCompileOnly 'com.github.DuncanRuns:seedqueue:c6195fe07a'
+    modImplementation('com.github.KingContaria:atum-rewrite:bb34885886') {
+        transitive = false
+    }
+    modImplementation('com.github.KingContaria:SpeedrunAPI:5ba3c69cff')
+
+//    modImplementation(
+    modCompileOnly(
+            'com.github.KingContaria:seedqueue:12d5a8b6d9') {
+        transitive = false
+    }
+
+
 }
 
 processResources {

@@ -162,7 +162,12 @@ public class FSGOnlineDB {
             } catch (Exception e) {
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 if (rootCause instanceof CooldownException) {
-                    sleep(((CooldownException) rootCause).cooldownMs);
+                    FSGMod.LOGGER.info("Rate limited, cooldown: {}ms", ((CooldownException) rootCause).cooldownMs);
+                    long timeDone = System.currentTimeMillis() + ((CooldownException) rootCause).cooldownMs;
+                    while (System.currentTimeMillis() < timeDone) {
+                        sleep(10);
+                        if (!Atum.isRunning()) return null;
+                    }
                 } else {
                     // Wrap exception in an io exception, which can technically be correct in this case.
                     throw new IOException(rootCause);
@@ -171,6 +176,32 @@ public class FSGOnlineDB {
         } while (data == null);
 
         return new FSGFilterResult(data.seed, data.token, System.currentTimeMillis());
+    }
+
+    /**
+     * Gets the display name for a filter code
+     *
+     * @param filterCode The filter code to get the display name for
+     * @return A future that will complete with the display name, or null if not found
+     */
+    public static CompletableFuture<String> getFilterDisplayName(String filterCode) {
+        return getFilters(false).thenApply(filters ->
+                filters.stream()
+                        .filter(filter -> filter.id.equals(filterCode))
+                        .map(filter -> filter.displayName)
+                        .findFirst()
+                        .orElse(null)
+        );
+    }
+
+    public static CompletableFuture<Integer> getMaxGenerating(Collection<String> filterCodes) {
+        return getFilters(false)
+                .thenApply(
+                        filters -> filters.stream()
+                                .filter(filter -> filterCodes.contains(filter.id))
+                                .mapToInt(filter -> filter.maxGenerating)
+                                .min().orElse(1)
+                );
     }
 
     public static class SeedData {
@@ -206,31 +237,5 @@ public class FSGOnlineDB {
             super("Rate limited, cooldown: " + cooldownMs + "ms");
             this.cooldownMs = cooldownMs;
         }
-    }
-
-    /**
-     * Gets the display name for a filter code
-     *
-     * @param filterCode The filter code to get the display name for
-     * @return A future that will complete with the display name, or null if not found
-     */
-    public static CompletableFuture<String> getFilterDisplayName(String filterCode) {
-        return getFilters(false).thenApply(filters ->
-                filters.stream()
-                        .filter(filter -> filter.id.equals(filterCode))
-                        .map(filter -> filter.displayName)
-                        .findFirst()
-                        .orElse(null)
-        );
-    }
-
-    public static CompletableFuture<Integer> getMaxGenerating(Collection<String> filterCodes) {
-        return getFilters(false)
-                .thenApply(
-                        filters -> filters.stream()
-                                .filter(filter -> filterCodes.contains(filter.id))
-                                .mapToInt(filter -> filter.maxGenerating)
-                                .min().orElse(1)
-                );
     }
 }

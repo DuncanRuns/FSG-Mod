@@ -71,5 +71,6 @@ public class FSGMod implements ModInitializer {
             FSGMod.logError("Failed to load filters!", throwable);
             return null;
         });
+        SeedManager.start();
     }
 }

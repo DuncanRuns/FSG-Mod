@@ -2,8 +2,7 @@ package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.FSGOnlineDB;
-import me.duncanruns.fsgmod.SeedManager;
-import me.duncanruns.fsgmod.screen.widget.FilterListWidget;
+import me.duncanruns.fsgmod.screen.widget.OnlineFilterListWidget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -19,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OnlineFiltersScreen extends Screen {
-    private FilterListWidget filterListWidget;
+    private OnlineFilterListWidget filterListWidget;
     private final List<FSGOnlineDB.FilterInfo> filters;
     private final Set<String> initiallySelectedFilters;
     private ButtonWidget confirmButton;
@@ -44,9 +43,9 @@ public class OnlineFiltersScreen extends Screen {
     protected void init() {
         assert client != null;
         if (this.filterListWidget != null) {
-            this.filterListWidget = new FilterListWidget(client, width, height, 45, this.height - 64, filters, getSelectedFilterIds());
+            this.filterListWidget = new OnlineFilterListWidget(client, width, height, 45, this.height - 64, filters, getSelectedFilterIds());
         } else {
-            this.filterListWidget = new FilterListWidget(client, width, height, 45, this.height - 64, filters, initiallySelectedFilters);
+            this.filterListWidget = new OnlineFilterListWidget(client, width, height, 45, this.height - 64, filters, initiallySelectedFilters);
         }
         addChild(filterListWidget);
 
@@ -116,7 +115,6 @@ public class OnlineFiltersScreen extends Screen {
         }
         client.openScreen(new ConfigScreen());
         FSGModConfig.trySave();
-        SeedManager.clear();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package me.duncanruns.fsgmod;
 
-import me.voidxwalker.autoreset.Atum;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.MinecraftVersion;
 import net.minecraft.util.Util;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,10 +22,12 @@ public final class LocalFilter {
     private static final Pattern SEED_PATTERN = Pattern.compile("[sS]eed.*: ?(-?\\d+)");
     private static final Pattern TOKEN_PATTERN = Pattern.compile("[tT]oken.*?: ?(.+)");
 
+    public static boolean running = false;
+    private static final Path DATA_FILE_PATH = getFsgDir().resolve("fsgmoddata");
+    public static final Util.OperatingSystem OPERATING_SYSTEM = Util.getOperatingSystem();
+
     private LocalFilter() {
     }
-
-    private static final Path DATA_FILE_PATH = getFsgDir().resolve("fsgmoddata");
 
     public static Path getFsgDir() {
         return getGameDir().resolve("fsg");
@@ -43,14 +45,15 @@ public final class LocalFilter {
         return FabricLoader.getInstance().getGameDir().toAbsolutePath();
     }
 
-    public static final Util.OperatingSystem OPERATING_SYSTEM = Util.getOperatingSystem();
-
     private static FilterData loadData() throws IOException, IndexOutOfBoundsException {
         if (!Files.exists(DATA_FILE_PATH)) return null;
         byte[] bytes = Files.readAllBytes(DATA_FILE_PATH);
-        byte maxGenerating = bytes[0];
-        byte nameLength = bytes[1];
-        String filterName = new String(bytes, 2, nameLength);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        int maxGenerating = buffer.getInt();
+        byte nameLength = buffer.get();
+        byte[] nameBytes = new byte[nameLength];
+        buffer.get(nameBytes);
+        String filterName = new String(nameBytes);
         return new FilterData(maxGenerating, filterName);
     }
 
@@ -83,9 +86,7 @@ public final class LocalFilter {
     }
 
     @Nullable
-    static FSGFilterResult run() throws IOException, InterruptedException {
-        if (!Atum.isRunning()) return null;
-
+    private static FSGFilterResult runInternal() throws IOException, InterruptedException {
         String command = getRunPath().toString();
 
         Process process = new ProcessBuilder(command).directory(getFsgDir().toFile()).start();
@@ -96,27 +97,15 @@ public final class LocalFilter {
         String readL;
 
         while ((readL = reader.readLine()) != null) {
-            if (!Atum.isRunning()) {
-                process.destroy();
-                return null;
-            }
-
             lines.add(readL.trim());
             if ((readL = errReader.readLine()) != null) {
                 lines.add(readL.trim());
             }
         }
 
-        if (!Atum.isRunning()) {
-            process.destroy();
-            return null;
-        }
-
         process.waitFor();
 
         long generationTime = System.currentTimeMillis();
-
-        if (!Atum.isRunning()) return null;
 
         String seedOut = null;
         String tokenOut = "Token Unavailable";
@@ -149,6 +138,16 @@ public final class LocalFilter {
         return new FSGFilterResult(seedOut, tokenOut, generationTime);
     }
 
+    @Nullable
+    static synchronized FSGFilterResult run() throws IOException, InterruptedException {
+        try {
+            running = true;
+            return runInternal();
+        } finally {
+            running = false;
+        }
+    }
+
     private static class FilterData {
         public final int maxGenerating;
         public final String displayName;
@@ -159,11 +158,14 @@ public final class LocalFilter {
         }
 
         byte[] toBytes() {
-            byte[] bytes = new byte[2 + displayName.length()];
-            bytes[0] = (byte) maxGenerating;
-            bytes[1] = (byte) displayName.length();
-            System.arraycopy(displayName.getBytes(), 0, bytes, 2, displayName.length());
-            return bytes;
+            byte[] displayNameBytes = displayName.getBytes();
+            ByteBuffer buffer = ByteBuffer.allocate(5 + displayNameBytes.length);
+            buffer.putInt(maxGenerating);
+            buffer.put((byte) displayNameBytes.length);
+            buffer.put(displayNameBytes);
+            return buffer.array();
         }
     }
+
+
 }
