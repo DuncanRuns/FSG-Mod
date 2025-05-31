@@ -1,4 +1,4 @@
-package me.duncanruns.fsgmod.screen.widget;
+package me.duncanruns.fsgmod.screen.online;
 
 import me.duncanruns.fsgmod.FSGOnlineDB;
 import net.minecraft.client.MinecraftClient;

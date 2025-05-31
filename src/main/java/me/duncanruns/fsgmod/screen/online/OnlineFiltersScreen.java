@@ -1,8 +1,10 @@
-package me.duncanruns.fsgmod.screen;
+package me.duncanruns.fsgmod.screen.online;
 
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.FSGOnlineDB;
-import me.duncanruns.fsgmod.screen.widget.OnlineFilterListWidget;
+import me.duncanruns.fsgmod.screen.ConfigScreen;
+import me.duncanruns.fsgmod.screen.local.LoadingLocalFiltersScreen;
+import me.duncanruns.fsgmod.screen.local.LocalFiltersScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -73,7 +75,7 @@ public class OnlineFiltersScreen extends Screen {
         addButton(new ButtonWidget(
                 this.width / 2 - 153, this.height - 28, 150, 20,
                 new LiteralText("Install a local filter...").formatted(Formatting.RED),
-                b -> client.openScreen(new LocalFiltersScreen())
+                b -> client.openScreen(new LoadingLocalFiltersScreen(infos -> client.openScreen(new LocalFiltersScreen(infos))))
         )).active = (os == Util.OperatingSystem.WINDOWS || os == Util.OperatingSystem.LINUX || os == Util.OperatingSystem.OSX);
 
         // Refresh button
@@ -93,7 +95,7 @@ public class OnlineFiltersScreen extends Screen {
 
     private void refresh() {
         assert client != null;
-        client.openScreen(new LoadingFiltersScreen(
+        client.openScreen(new LoadingOnlineFiltersScreen(
                 filterInfos -> client.openScreen(new OnlineFiltersScreen(filterInfos, getSelectedFilterIds())),
                 true
         ));

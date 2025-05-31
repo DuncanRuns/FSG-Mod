@@ -1,7 +1,8 @@
-package me.duncanruns.fsgmod.screen;
+package me.duncanruns.fsgmod.screen.local;
 
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.LocalFilter;
+import me.duncanruns.fsgmod.screen.SimpleTextScreen;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;

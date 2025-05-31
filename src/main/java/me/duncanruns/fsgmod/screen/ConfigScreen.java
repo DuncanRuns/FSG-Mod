@@ -3,6 +3,8 @@ package me.duncanruns.fsgmod.screen;
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.LocalFilter;
+import me.duncanruns.fsgmod.screen.online.LoadingOnlineFiltersScreen;
+import me.duncanruns.fsgmod.screen.online.OnlineFiltersScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -94,7 +96,7 @@ public class ConfigScreen extends Screen {
 
     private void openOnlineFiltersScreen() {
         assert client != null;
-        client.openScreen(new LoadingFiltersScreen(filterInfos ->
+        client.openScreen(new LoadingOnlineFiltersScreen(filterInfos ->
                 client.openScreen(new OnlineFiltersScreen(filterInfos, FSGModConfig.getInstance().selectedOnlineFilters))
         ));
     }

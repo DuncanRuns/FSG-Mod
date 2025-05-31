@@ -1,7 +1,10 @@
-package me.duncanruns.fsgmod.screen;
+package me.duncanruns.fsgmod.screen.online;
 
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGOnlineDB;
+import me.duncanruns.fsgmod.screen.SimpleTextScreen;
+import me.duncanruns.fsgmod.screen.local.LoadingLocalFiltersScreen;
+import me.duncanruns.fsgmod.screen.local.LocalFiltersScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -11,17 +14,17 @@ import net.minecraft.util.Formatting;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class LoadingFiltersScreen extends Screen {
+public class LoadingOnlineFiltersScreen extends Screen {
     private final Consumer<List<FSGOnlineDB.FilterInfo>> onLoaded;
     private List<FSGOnlineDB.FilterInfo> filters = null;
     private boolean loaded = false;
     private boolean failed = false;
 
-    public LoadingFiltersScreen(Consumer<List<FSGOnlineDB.FilterInfo>> onLoaded) {
+    public LoadingOnlineFiltersScreen(Consumer<List<FSGOnlineDB.FilterInfo>> onLoaded) {
         this(onLoaded, false);
     }
 
-    public LoadingFiltersScreen(Consumer<List<FSGOnlineDB.FilterInfo>> onLoaded, boolean refresh) {
+    public LoadingOnlineFiltersScreen(Consumer<List<FSGOnlineDB.FilterInfo>> onLoaded, boolean refresh) {
         super(new LiteralText("Loading Filters..."));
         this.onLoaded = onLoaded;
 
@@ -46,7 +49,7 @@ public class LoadingFiltersScreen extends Screen {
             client.openScreen(new SimpleTextScreen(new LiteralText("Failed to load filters!"), "Please check the log for more information.", true, s -> {
                 // Local filters screen
                 return new ButtonWidget(s.width / 2 - 100, s.height / 6 + 140, 200, 20, new LiteralText("Install a local filter instead...").formatted(Formatting.RED), b ->
-                        client.openScreen(new LocalFiltersScreen())
+                        client.openScreen(new LoadingLocalFiltersScreen(filterInfos -> client.openScreen(new LocalFiltersScreen(filterInfos))))
                 );
             }));
         }
