@@ -25,14 +25,14 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation('com.github.KingContaria:atum-rewrite:bb34885886') {
+    modImplementation('com.github.contariaa:atum:fe1f979836') {
         transitive = false
     }
-    modImplementation('com.github.KingContaria:SpeedrunAPI:5ba3c69cff')
+    modImplementation('com.github.contariaa:SpeedrunAPI:96811e85e8')
 
 //    modImplementation(
     modCompileOnly(
-            'com.github.KingContaria:seedqueue:12d5a8b6d9') {
+            'com.github.contariaa:seedqueue:62d3c7b4dc') {
         transitive = false
     }
 
