@@ -22,9 +22,39 @@ import static java.lang.Thread.sleep;
 
 // Class to interact with fsgonlinedb.duncanruns.xyz
 public class FSGOnlineDB {
-    private static final String BASE_URL = "https://fsgonlinedb.duncanruns.xyz";
+    private static final String HTTPS_BASE_URL = "https://fsgonlinedb.duncanruns.xyz";
+    private static final String HTTP_BASE_URL = "http://fsgonlinedb.duncanruns.xyz:8080";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static JsonArray cachedFilters = null;
+    private static String urlToUse = null;
+
+    private static String getBaseURL() {
+        if (urlToUse != null) return urlToUse;
+
+        for (int i = 0; i < 3; i++) {
+            try {
+                GrabUtil.grab(HTTPS_BASE_URL);
+                urlToUse = HTTPS_BASE_URL;
+                return urlToUse;
+            } catch (Exception e) {
+                FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB (https), retrying...");
+            }
+        }
+        FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB with https, falling back to http.");
+
+        for (int i = 0; i < 3; i++) {
+            try {
+                GrabUtil.grab(HTTP_BASE_URL);
+                FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB with https, falling back to http.");
+                urlToUse = HTTP_BASE_URL;
+                return urlToUse;
+            } catch (IOException ex) {
+                FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB (http), retrying...");
+            }
+        }
+
+        throw new RuntimeException("Failed to connect to FSGOnlineDB, although this error should not happen.");
+    }
 
     /**
      * Gets a seed from the specified filter
@@ -38,7 +68,7 @@ public class FSGOnlineDB {
         }
         return CompletableFuture.supplyAsync(() -> {
             try {
-                JsonObject response = GrabUtil.grabJson(BASE_URL + "/getSeed/" + filterCode);
+                JsonObject response = GrabUtil.grabJson(getBaseURL() + "/getSeed/" + filterCode);
                 String type = response.get("type").getAsString();
 
                 if ("SUCCESS".equals(type)) {
@@ -54,6 +84,7 @@ public class FSGOnlineDB {
                     throw new IOException("Error from fsgonlinedb: " + response.get("errorMessage").getAsString());
                 }
             } catch (IOException e) {
+                urlToUse = null;
                 throw new RuntimeException(e);
             }
         }, EXECUTOR);
@@ -78,7 +109,7 @@ public class FSGOnlineDB {
                         .map(code -> "filters=" + code)
                         .collect(Collectors.joining("&"));
 
-                JsonObject response = GrabUtil.grabJson(BASE_URL + "/getSeedRandomFilter?" + filtersParam);
+                JsonObject response = GrabUtil.grabJson(getBaseURL() + "/getSeedRandomFilter?" + filtersParam);
                 String type = response.get("type").getAsString();
 
                 if ("SUCCESS".equals(type)) {
@@ -94,6 +125,7 @@ public class FSGOnlineDB {
                     throw new IOException("Error from fsgonlinedb: " + response.get("errorMessage").getAsString());
                 }
             } catch (IOException e) {
+                urlToUse = null;
                 throw new RuntimeException(e);
             }
         }, EXECUTOR);
@@ -116,7 +148,7 @@ public class FSGOnlineDB {
                     return parseFilters(cachedFilters);
                 }
 
-                JsonObject response = GrabUtil.grabJson(BASE_URL + "/filters");
+                JsonObject response = GrabUtil.grabJson(getBaseURL() + "/filters");
                 if (!"SUCCESS".equals(response.get("type").getAsString())) {
                     throw new IOException("Error from fsgonlinedb: " + response.get("errorMessage").getAsString());
                 }
@@ -124,6 +156,7 @@ public class FSGOnlineDB {
                 cachedFilters = response.getAsJsonArray("filters");
                 return parseFilters(cachedFilters);
             } catch (IOException e) {
+                urlToUse = null;
                 throw new RuntimeException(e);
             }
         }, EXECUTOR);
