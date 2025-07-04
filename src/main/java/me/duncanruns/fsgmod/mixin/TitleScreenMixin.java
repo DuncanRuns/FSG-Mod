@@ -44,6 +44,7 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "render", at = @At("TAIL"))
     private void wheatSeedsOverlay(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        assert this.client != null;
         this.client.getTextureManager().bindTexture(BUTTON_IMAGE);
         drawTexture(matrices, this.width / 2 - 124 + 1 + (isMinceraft ? RANDOM.nextInt(2) : seedOffset), this.height / 4 + 48 + 2 + 24, 0.0F, 0.0F, 16, 16, 16, 16);
     }

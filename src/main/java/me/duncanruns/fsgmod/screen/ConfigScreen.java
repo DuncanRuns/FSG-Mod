@@ -2,7 +2,9 @@ package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGMod;
 import me.duncanruns.fsgmod.FSGModConfig;
-import me.duncanruns.fsgmod.SeedManager;
+import me.duncanruns.fsgmod.LocalFilter;
+import me.duncanruns.fsgmod.screen.online.LoadingOnlineFiltersScreen;
+import me.duncanruns.fsgmod.screen.online.OnlineFiltersScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -13,7 +15,6 @@ import net.minecraft.util.Util;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 public class ConfigScreen extends Screen {
     private String installedFilterText;
@@ -38,7 +39,7 @@ public class ConfigScreen extends Screen {
     public void init(MinecraftClient client, int width, int height) {
         super.init(client, width, height);
         y = 75;
-        if (FSGMod.filterIsInstalled()) {
+        if (FSGMod.filterSelectedOrInstalled()) {
             initFilterInstalled(client, width);
         } else {
             initFilterNotInstalled(client, width);
@@ -49,29 +50,32 @@ public class ConfigScreen extends Screen {
 
     private void initFilterInstalled(MinecraftClient client, int width) {
         // Change the text based on whether it's an online filter or local filter
-        boolean online = FSGModConfig.getInstance().onlineFilterCode != null;
+        boolean online = !LocalFilter.isInstalled();
         if (online) {
-            installedFilterText = "Selected Filter: " + FSGModConfig.getInstance().installedFilter;
+            if (FSGModConfig.getInstance().selectedOnlineFilters.size() == 1) {
+                installedFilterText = "Selected Filter: " + FSGModConfig.getInstance().selectedOnlineFilterName;
+            } else {
+                installedFilterText = FSGModConfig.getInstance().selectedOnlineFilters.size() + " Filters Selected";
+            }
         } else {
-            installedFilterText = "Installed Filter: " + FSGModConfig.getInstance().installedFilter;
+            installedFilterText = "Installed Filter: " + LocalFilter.getFilterName();
         }
 
         y += 10;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText(online ? "Select Different Filter" : "Configure Filter (Open Folder)"), b -> {
+        addButton(new ButtonWidget(width / 2 - 100, y + (online ? 11 : 0), 200, 20, new LiteralText(online ? "Select Different Filter(s)..." : "Configure Filter (Open Folder)"), b -> {
             if (online) {
-                client.openScreen(new OnlineFiltersScreen());
+                openOnlineFiltersScreen();
             } else {
-                Util.getOperatingSystem().open(FSGMod.getFsgDir().toFile());
+                Util.getOperatingSystem().open(LocalFilter.getFsgDir().toFile());
             }
         }));
         y += 25;
+        if (online) return;
         uninstallButton = addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
-            SeedManager.clear();
             try {
-                if (Files.exists(FSGMod.getFsgDir()))
-                    FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
-                FSGModConfig.getInstance().installedFilter = "Unknown Filter";
-                FSGModConfig.getInstance().onlineFilterCode = null;
+                if (LocalFilter.isInstalled())
+                    FileUtils.deleteDirectory(LocalFilter.getFsgDir().toFile());
+                FSGModConfig.trySave();
             } catch (IOException e) {
                 FSGMod.logError("Failed to delete fsg directory", e);
             }
@@ -86,14 +90,20 @@ public class ConfigScreen extends Screen {
     private void initFilterNotInstalled(MinecraftClient client, int width) {
         installedFilterText = "No filter selected!";
         y += 21;
-        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Select Filter..."), b -> client.openScreen(new OnlineFiltersScreen())));
+        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Select Filter..."), b -> openOnlineFiltersScreen()));
         y += 14;
+    }
+
+    private void openOnlineFiltersScreen() {
+        assert client != null;
+        client.openScreen(new LoadingOnlineFiltersScreen(filterInfos ->
+                client.openScreen(new OnlineFiltersScreen(filterInfos, FSGModConfig.getInstance().selectedOnlineFilters))
+        ));
     }
 
     @Override
     public void tick() {
         if (uninstallButton == null) return;
-        boolean filterRunning = SeedManager.getCurrentlyFiltering() > 0;
-        uninstallButton.active = !filterRunning;
+        uninstallButton.active = !LocalFilter.running;
     }
 }

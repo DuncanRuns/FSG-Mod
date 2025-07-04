@@ -1,6 +1,8 @@
-package me.duncanruns.fsgmod.screen;
+package me.duncanruns.fsgmod.screen.local;
 
 import me.duncanruns.fsgmod.FSGMod;
+import me.duncanruns.fsgmod.LocalFilter;
+import me.duncanruns.fsgmod.screen.SimpleTextScreen;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -79,14 +81,14 @@ public class DownloadingScreen extends Screen {
     }
 
     private void downloadAndMove() throws IOException {
-        Path zipFilePath = FSGMod.getGameDir().resolve("downloaded.zip");
+        Path zipFilePath = LocalFilter.getGameDir().resolve("downloaded.zip");
 
         File zipFile = zipFilePath.toFile();
         if (!zipFile.isFile()) {
             GrabUtil.download(downloadURL, zipFilePath, i -> totalBytesRead = i);
         }
 
-        String destDirPath = FSGMod.getFsgDir() + "/";
+        String destDirPath = LocalFilter.getFsgDir() + "/";
 
         // Create the destination directory if it doesn't exist
         Path fsgFolderPath = Paths.get(destDirPath);
@@ -98,11 +100,11 @@ public class DownloadingScreen extends Screen {
         zipFile.delete();
         // Elevate folders
         List<Path> files;
-        while ((files = Files.list(FSGMod.getFsgDir()).collect(Collectors.toList())).size() == 1 && Files.isDirectory(files.get(0))) {
-            File temp = FSGMod.getFsgDir().resolveSibling("fsg-temp").toFile();
+        while ((files = Files.list(LocalFilter.getFsgDir()).collect(Collectors.toList())).size() == 1 && Files.isDirectory(files.get(0))) {
+            File temp = LocalFilter.getFsgDir().resolveSibling("fsg-temp").toFile();
             FileUtils.moveDirectory(files.get(0).toFile(), temp);
-            FileUtils.deleteDirectory(FSGMod.getFsgDir().toFile());
-            FileUtils.moveDirectory(temp, FSGMod.getFsgDir().toFile());
+            FileUtils.deleteDirectory(LocalFilter.getFsgDir().toFile());
+            FileUtils.moveDirectory(temp, LocalFilter.getFsgDir().toFile());
             FileUtils.deleteDirectory(temp);
         }
     }
@@ -156,7 +158,7 @@ public class DownloadingScreen extends Screen {
             throw new RuntimeException(e);
         }
         if (failed) {
-            client.openScreen(new DownloadFailedScreen());
+            client.openScreen(new SimpleTextScreen(new LiteralText("Download failed!"), "Please close Minecraft and report the error in the log.", false));
         } else {
             client.openScreen(screenOnCompletion);
         }

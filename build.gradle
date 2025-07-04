@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.10-SNAPSHOT'
     id 'maven-publish'
 
 }
@@ -25,9 +25,18 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation 'com.github.KingContaria:atum-rewrite:v2.5'
-    modImplementation 'com.github.KingContaria:SpeedrunAPI:v1.2.1'
-    modImplementation 'com.github.KingContaria:seedqueue:v1.4.1'
+    modImplementation('com.github.contariaa:atum:fe1f979836') {
+        transitive = false
+    }
+    modImplementation('com.github.contariaa:SpeedrunAPI:96811e85e8')
+
+//    modImplementation(
+    modCompileOnly(
+            'com.github.contariaa:seedqueue:62d3c7b4dc') {
+        transitive = false
+    }
+
+
 }
 
 processResources {
