@@ -51,6 +51,13 @@ public class OnlineFiltersScreen extends Screen {
         }
         addChild(filterListWidget);
 
+        // Info button
+        this.addButton(new ButtonWidget(
+                5, 5, 100, 20,
+                new LiteralText("Filter Info"),
+                buttonWidget -> client.openScreen(new LoadingInfoDocScreen(string -> client.openScreen(new DocumentScreen(new LiteralText("Filters Info"), string))))
+        ));
+
 
         // Confirm button
         this.confirmButton = addButton(new ButtonWidget(

@@ -2,6 +2,7 @@ package me.duncanruns.fsgmod;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import me.voidxwalker.autoreset.Atum;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -245,6 +246,18 @@ public class FSGOnlineDB {
                                 .filter(filter -> selectedOnlineFilters.contains(filter.id))
                                 .anyMatch(filter -> filter.runIsRetimed)
                 );
+    }
+
+    public static CompletableFuture<String> getFilterInfoDoc() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                JsonObject jsonObject = GrabUtil.grabJson(getBaseURL() + "/getFilterInfoDoc");
+                return jsonObject.get("doc").getAsString();
+            } catch (Exception e) {
+                urlToUse = null;
+                throw new RuntimeException(e);
+            }
+        }, EXECUTOR);
     }
 
     public static class SeedData {
