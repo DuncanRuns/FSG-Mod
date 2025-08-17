@@ -9,10 +9,12 @@
     "AtumMixin",
     "DebugHudMixin",
     "MinecraftClientMixin",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "speedrunigt.TimerDrawerMixin"
   ],
   "mixins": [
     "CommandManagerMixin",
-    "LevelPropertiesMixin"
+    "LevelPropertiesMixin",
+    "speedrunigt.InGameTimerMixin"
   ]
 }

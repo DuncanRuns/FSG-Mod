@@ -18,6 +18,8 @@ public class FSGMod implements ModInitializer {
 
     public static final boolean DEBUG = false;
 
+    public static boolean shouldRetime = true;
+
     public static void logError(String message, Throwable t) {
         LOGGER.error(message, t);
     }
@@ -51,6 +53,16 @@ public class FSGMod implements ModInitializer {
         return FSGOnlineDB.getMaxGenerating(FSGModConfig.getInstance().selectedOnlineFilters).join();
     }
 
+    public static boolean shouldRetime() throws IOException {
+        if (!filterSelectedOrInstalled()) return true;
+        if (LocalFilter.isInstalled()) return LocalFilter.getShouldRetime();
+        return FSGOnlineDB.getShouldRetime(FSGModConfig.getInstance().selectedOnlineFilters).join();
+    }
+
+    public static void updateShouldRetime() throws IOException {
+        shouldRetime = shouldRetime();
+    }
+
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing");
@@ -59,7 +71,7 @@ public class FSGMod implements ModInitializer {
 
         if (LocalFilter.isInstalled() && !LocalFilter.isValid()) {
             try {
-                LocalFilter.writeData(1, "Unknown Filter");
+                LocalFilter.writeData(1, "Unknown Filter", false);
             } catch (IOException e) {
                 logError("Failed to write local filter data!", e);
             }

@@ -1,7 +1,6 @@
 plugins {
     id 'fabric-loom' version '1.10-SNAPSHOT'
     id 'maven-publish'
-
 }
 
 java {
@@ -36,7 +35,7 @@ dependencies {
         transitive = false
     }
 
-
+    modCompileOnly("com.github.RedLime:SpeedRunIGT:f742cbaf81")
 }
 
 processResources {

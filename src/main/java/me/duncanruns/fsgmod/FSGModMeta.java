@@ -63,7 +63,7 @@ public class FSGModMeta {
 
                     // Parse download links
                     JsonObject downloadObj = obj.has("download") ? obj.getAsJsonObject("download") : new JsonObject();
-                    
+
                     // Parse run scripts if present
                     String runBat = obj.has("run.bat") ? obj.get("run.bat").getAsString() : null;
                     String runSh = obj.has("run.sh") ? obj.get("run.sh").getAsString() : null;
@@ -73,6 +73,7 @@ public class FSGModMeta {
                             obj.has("version") ? obj.get("version").getAsString() : null,
                             supportedVersions,
                             obj.get("maxGenerating").getAsInt(),
+                            obj.get("runIsRetimed").getAsBoolean(),
                             downloadObj,
                             runBat,
                             runSh
@@ -112,17 +113,17 @@ public class FSGModMeta {
         public final String version;
         public final List<String> supportedVersions;
         public final int maxGenerating;
+        public final boolean runIsRetimed;
         public final JsonObject downloadLinks;
         public final String runBatScript;
         public final String runShScript;
 
-        public FilterInfo(String name, String version, List<String> supportedVersions, 
-                         int maxGenerating, JsonObject downloadLinks, 
-                         String runBatScript, String runShScript) {
+        public FilterInfo(String name, String version, List<String> supportedVersions, int maxGenerating, boolean runIsRetimed, JsonObject downloadLinks, String runBatScript, String runShScript) {
             this.name = name;
             this.version = version;
             this.supportedVersions = supportedVersions;
             this.maxGenerating = maxGenerating;
+            this.runIsRetimed = runIsRetimed;
             this.downloadLinks = downloadLinks;
             this.runBatScript = runBatScript;
             this.runShScript = runShScript;

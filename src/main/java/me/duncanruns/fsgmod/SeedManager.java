@@ -38,6 +38,7 @@ public class SeedManager {
         int maxGenerating;
         try {
             maxGenerating = FSGMod.getMaxGenerating();
+            FSGMod.updateShouldRetime();
         } catch (IOException e) {
             completeFailureAll(e);
             return;

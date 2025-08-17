@@ -177,7 +177,8 @@ public class FSGOnlineDB {
                             obj.get("id").getAsString(),
                             obj.get("displayName").getAsString(),
                             supportedVersions,
-                            obj.get("maxGenerating").getAsInt()
+                            obj.get("maxGenerating").getAsInt(),
+                            obj.get("runIsRetimed").getAsBoolean()
                     );
                 })
                 .collect(Collectors.toList());
@@ -237,6 +238,15 @@ public class FSGOnlineDB {
                 );
     }
 
+    public static CompletableFuture<Boolean> getShouldRetime(Set<String> selectedOnlineFilters) {
+        return getFilters(false)
+                .thenApply(
+                        filters -> filters.stream()
+                                .filter(filter -> selectedOnlineFilters.contains(filter.id))
+                                .anyMatch(filter -> filter.runIsRetimed)
+                );
+    }
+
     public static class SeedData {
         public final String seed;
         public final String token;
@@ -254,12 +264,14 @@ public class FSGOnlineDB {
         public final String displayName;
         public final List<String> supportedVersions;
         public final int maxGenerating;
+        public final boolean runIsRetimed;
 
-        public FilterInfo(String id, String displayName, List<String> supportedVersions, int maxGenerating) {
+        public FilterInfo(String id, String displayName, List<String> supportedVersions, int maxGenerating, boolean runIsRetimed) {
             this.id = id;
             this.displayName = displayName;
             this.supportedVersions = supportedVersions;
             this.maxGenerating = maxGenerating;
+            this.runIsRetimed = runIsRetimed;
         }
     }
 

@@ -68,7 +68,7 @@ public class LocalFilterListWidget extends ElementListWidget<LocalFilterListWidg
                             config.selectedOnlineFilters = new HashSet<>();
                             config.selectedOnlineFilterName = null;
                             FSGModConfig.trySave();
-                            LocalFilter.writeData(filter.maxGenerating, filter.name);
+                            LocalFilter.writeData(filter.maxGenerating, filter.name, filter.runIsRetimed);
                         } catch (IOException e) {
                             FSGMod.logError("Failed to install filter!", e);
                         }

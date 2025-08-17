@@ -80,7 +80,7 @@ public class FSGModConfig {
                 config.selectedOnlineFilters = new HashSet<>();
                 config.selectedOnlineFilterName = null;
                 try {
-                    LocalFilter.writeData(oldConfig.maxGenerating, oldConfig.installedFilter);
+                    LocalFilter.writeData(oldConfig.maxGenerating, oldConfig.installedFilter, false);
                 } catch (IOException e) {
                     FSGMod.logError("Failed to write local filter data!", e);
                 }

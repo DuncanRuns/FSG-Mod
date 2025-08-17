@@ -48,13 +48,19 @@ public final class LocalFilter {
     private static FilterData loadData() throws IOException, IndexOutOfBoundsException {
         if (!Files.exists(DATA_FILE_PATH)) return null;
         byte[] bytes = Files.readAllBytes(DATA_FILE_PATH);
+        int lengthLeft = bytes.length;
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         int maxGenerating = buffer.getInt();
+        lengthLeft -= 4;
         byte nameLength = buffer.get();
+        lengthLeft -= 1;
         byte[] nameBytes = new byte[nameLength];
         buffer.get(nameBytes);
+        lengthLeft -= nameLength;
         String filterName = new String(nameBytes);
-        return new FilterData(maxGenerating, filterName);
+        boolean runIsRetimed = lengthLeft == 0 || buffer.get() == 1;
+        // lengthLeft -= 1;
+        return new FilterData(maxGenerating, filterName, runIsRetimed);
     }
 
     public static boolean isInstalled() {
@@ -73,8 +79,8 @@ public final class LocalFilter {
         return Objects.requireNonNull(loadData()).maxGenerating;
     }
 
-    public static void writeData(int maxGenerating, String displayName) throws IOException {
-        Files.write(DATA_FILE_PATH, new FilterData(maxGenerating, displayName).toBytes());
+    public static void writeData(int maxGenerating, String displayName, boolean runIsRetimed) throws IOException {
+        Files.write(DATA_FILE_PATH, new FilterData(maxGenerating, displayName, runIsRetimed).toBytes());
     }
 
     public static String getFilterName() {
@@ -148,21 +154,28 @@ public final class LocalFilter {
         }
     }
 
+    public static boolean getShouldRetime() throws IOException {
+        return Objects.requireNonNull(loadData()).runIsRetimed;
+    }
+
     private static class FilterData {
         public final int maxGenerating;
         public final String displayName;
+        public final boolean runIsRetimed;
 
-        FilterData(int maxGenerating, String displayName) {
+        FilterData(int maxGenerating, String displayName, boolean runIsRetimed) {
             this.maxGenerating = maxGenerating;
             this.displayName = displayName;
+            this.runIsRetimed = runIsRetimed;
         }
 
         byte[] toBytes() {
             byte[] displayNameBytes = displayName.getBytes();
-            ByteBuffer buffer = ByteBuffer.allocate(5 + displayNameBytes.length);
+            ByteBuffer buffer = ByteBuffer.allocate(6 + displayNameBytes.length);
             buffer.putInt(maxGenerating);
             buffer.put((byte) displayNameBytes.length);
             buffer.put(displayNameBytes);
+            buffer.put((byte) (runIsRetimed ? 1 : 0));
             return buffer.array();
         }
     }
