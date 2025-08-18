@@ -1,6 +1,8 @@
-package me.duncanruns.fsgmod.screen.online;
+package me.duncanruns.fsgmod.screen;
 
 import me.duncanruns.fsgmod.FSGModConfig;
+import me.duncanruns.fsgmod.screen.online.LoadingOnlineFiltersScreen;
+import me.duncanruns.fsgmod.screen.online.OnlineFiltersScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
