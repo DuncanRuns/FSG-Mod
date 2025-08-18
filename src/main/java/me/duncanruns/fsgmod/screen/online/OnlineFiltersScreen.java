@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OnlineFiltersScreen extends Screen {
     private OnlineFilterListWidget filterListWidget;
@@ -84,9 +85,13 @@ public class OnlineFiltersScreen extends Screen {
                     practiceMode = !practiceMode;
                     buttonWidget.setMessage(new LiteralText("Practice Mode: " + (practiceMode ? "ON" : "OFF")));
                 },
-                (button, matrices, mouseX, mouseY) -> {
-                    renderTooltip(matrices, new LiteralText("Practice Mode gives seeds that were previously used by other players, and "), mouseX, mouseY);
-                }
+                (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Stream.of(
+                        "Practice Mode gives seeds that were previously",
+                        "used by other players, and does not give a token,",
+                        "meaning the runs are unverifiable. It also removes",
+                        "the cooldown on seeds, and allows you to generate",
+                        "as many seeds as you want with SeedQueue."
+                ).map(LiteralText::new).collect(Collectors.toList()), mouseX, mouseY)
         ));
 
         // Info button
