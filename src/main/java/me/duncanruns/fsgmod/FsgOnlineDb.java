@@ -2,17 +2,13 @@ package me.duncanruns.fsgmod;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import me.voidxwalker.autoreset.Atum;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +24,7 @@ public class FSGOnlineDB {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static JsonArray cachedFilters = null;
     private static String urlToUse = null;
+    private static Random RANDOM = new Random();
 
     private static String getBaseURL() {
         if (urlToUse != null) return urlToUse;
@@ -186,14 +183,14 @@ public class FSGOnlineDB {
     }
 
     @Nullable
-    static synchronized FSGFilterResult runFilterOnline(Set<String> filterIds) throws IOException, InterruptedException {
+    static synchronized FSGFilterResult runFilterOnline(Set<String> filterIds, boolean practiceMode) throws IOException, InterruptedException {
         if (!Atum.isRunning()) return null;
         SeedData data = null;
 
         do {
             try {
                 if (!Atum.isRunning()) return null;
-                data = getSeed(filterIds).join();
+                data = practiceMode ? getRandomUsedSeed(filterIds).join() : getSeed(filterIds).join();
             } catch (Exception e) {
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 if (rootCause instanceof CooldownException) {
@@ -258,6 +255,31 @@ public class FSGOnlineDB {
                 throw new RuntimeException(e);
             }
         }, EXECUTOR);
+    }
+
+    public static CompletableFuture<SeedData> getRandomUsedSeed(Collection<String> filterCodes) {
+        if (filterCodes == null || filterCodes.isEmpty()) {
+            throw new IllegalArgumentException("No filter codes provided");
+        }
+        List<String> filterCodesList = new ArrayList<>(filterCodes);
+        String filterCode = filterCodes.size() == 1 ? filterCodesList.get(0) : filterCodesList.get(RANDOM.nextInt(filterCodes.size()));
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                JsonObject jsonObject = GrabUtil.grabJson(getBaseURL() + "/getRandomUsedSeed/" + filterCode);
+                if ("SUCCESS".equals(jsonObject.get("type").getAsString())) {
+                    return new SeedData(
+                            jsonObject.get("seed").getAsString(),
+                            null,
+                            filterCode
+                    );
+                } else {
+                    throw new IOException("Error from fsgonlinedb: " + jsonObject.get("errorMessage").getAsString());
+                }
+            } catch (Exception e) {
+                urlToUse = null;
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static class SeedData {

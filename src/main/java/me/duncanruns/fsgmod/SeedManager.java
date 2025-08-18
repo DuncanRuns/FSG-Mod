@@ -126,7 +126,7 @@ public class SeedManager {
         if (LocalFilter.isInstalled()) {
             return LocalFilter.run();
         }
-        return FSGOnlineDB.runFilterOnline(FSGModConfig.getInstance().selectedOnlineFilters);
+        return FSGOnlineDB.runFilterOnline(FSGModConfig.getInstance().selectedOnlineFilters, FSGModConfig.getInstance().practiceMode);
     }
 
     public static void start() {

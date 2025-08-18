@@ -50,6 +50,7 @@ public class FSGMod implements ModInitializer {
     public static int getMaxGenerating() throws IOException {
         if (!filterSelectedOrInstalled()) return 30;
         if (LocalFilter.isInstalled()) return LocalFilter.getMaxGenerating();
+        if (FSGModConfig.getInstance().practiceMode) return 30;
         return FSGOnlineDB.getMaxGenerating(FSGModConfig.getInstance().selectedOnlineFilters).join();
     }
 
