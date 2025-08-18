@@ -1,8 +1,5 @@
 package me.duncanruns.fsgmod.screen;
 
-import me.duncanruns.fsgmod.FSGModConfig;
-import me.duncanruns.fsgmod.screen.online.LoadingOnlineFiltersScreen;
-import me.duncanruns.fsgmod.screen.online.OnlineFiltersScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -21,10 +18,12 @@ public class DocumentScreen extends Screen {
     private int docWidth;
     private int availableHeight;
     private List<StringRenderable> lines;
+    private final Runnable onDone;
 
-    protected DocumentScreen(Text title, String doc) {
+    public DocumentScreen(Text title, String doc, Runnable onDone) {
         super(title);
         this.doc = doc;
+        this.onDone = onDone;
     }
 
     @Override
@@ -35,13 +34,7 @@ public class DocumentScreen extends Screen {
         docWidth = lines.stream().mapToInt(string -> textRenderer.getWidth(string)).max().orElse(width - 40);
         availableHeight = height - 40;
 
-        addButton(new ButtonWidget(width - 105, height - 25, 100, 20, new TranslatableText("gui.done"), b ->
-                this.client.openScreen(
-                        new LoadingOnlineFiltersScreen(filterInfos -> client.openScreen(
-                                new OnlineFiltersScreen(filterInfos, FSGModConfig.getInstance().selectedOnlineFilters)
-                        ))
-                ))
-        );
+        addButton(new ButtonWidget(width - 105, height - 25, 100, 20, new TranslatableText("gui.done"), b -> onDone.run()));
     }
 
     @Override

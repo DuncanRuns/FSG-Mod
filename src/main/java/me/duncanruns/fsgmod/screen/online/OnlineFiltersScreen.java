@@ -3,6 +3,7 @@ package me.duncanruns.fsgmod.screen.online;
 import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.FSGOnlineDB;
 import me.duncanruns.fsgmod.screen.ConfigScreen;
+import me.duncanruns.fsgmod.screen.DocumentScreen;
 import me.duncanruns.fsgmod.screen.local.LoadingLocalFiltersScreen;
 import me.duncanruns.fsgmod.screen.local.LocalFiltersScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -23,13 +24,19 @@ public class OnlineFiltersScreen extends Screen {
     private OnlineFilterListWidget filterListWidget;
     private final List<FSGOnlineDB.FilterInfo> filters;
     private final Set<String> initiallySelectedFilters;
+    private boolean practiceMode;
     private ButtonWidget confirmButton;
 
 
-    public OnlineFiltersScreen(List<FSGOnlineDB.FilterInfo> filters, Set<String> selectedFiltersIds) {
+    public OnlineFiltersScreen(List<FSGOnlineDB.FilterInfo> filters) {
+        this(filters, FSGModConfig.getInstance().selectedOnlineFilters, FSGModConfig.getInstance().practiceMode);
+    }
+
+    public OnlineFiltersScreen(List<FSGOnlineDB.FilterInfo> filters, Set<String> selectedFiltersIds, boolean practiceMode) {
         super(new LiteralText("FSG Mod: Select Online Filter(s)"));
         this.filters = filters;
         this.initiallySelectedFilters = selectedFiltersIds;
+        this.practiceMode = practiceMode;
     }
 
     @Override
@@ -45,22 +52,15 @@ public class OnlineFiltersScreen extends Screen {
     protected void init() {
         assert client != null;
         if (this.filterListWidget != null) {
-            this.filterListWidget = new OnlineFilterListWidget(client, width, height, 45, this.height - 64, filters, getSelectedFilterIds());
+            this.filterListWidget = new OnlineFilterListWidget(client, width, height, 45, this.height - 88, filters, getSelectedFilterIds());
         } else {
-            this.filterListWidget = new OnlineFilterListWidget(client, width, height, 45, this.height - 64, filters, initiallySelectedFilters);
+            this.filterListWidget = new OnlineFilterListWidget(client, width, height, 45, this.height - 88, filters, initiallySelectedFilters);
         }
         addChild(filterListWidget);
 
-        // Info button
-        this.addButton(new ButtonWidget(
-                5, 5, 100, 20,
-                new LiteralText("Filter Info"),
-                buttonWidget -> client.openScreen(new LoadingInfoDocScreen(string -> client.openScreen(new DocumentScreen(new LiteralText("Filters Info"), string))))
-        ));
-
         // Confirm button
         this.confirmButton = addButton(new ButtonWidget(
-                this.width / 2 - 153, this.height - 52, 150, 20,
+                this.width / 2 - 153, this.height - 76, 150, 20,
                 new LiteralText("Confirm Selection"),
                 buttonWidget -> this.confirm()
         ));
@@ -68,12 +68,36 @@ public class OnlineFiltersScreen extends Screen {
 
         // Clear selection button
         addButton(new ButtonWidget(
-                this.width / 2 + 3, this.height - 52, 150, 20,
+                this.width / 2 + 3, this.height - 76, 150, 20,
                 new LiteralText("Clear Selection"),
                 buttonWidget -> {
                     filterListWidget.clearSelectedFilters();
                     updateConfirmButton();
                 }
+        ));
+
+        // Practice mode button
+        addButton(new ButtonWidget(
+                this.width / 2 - 153, this.height - 52, 150, 20,
+                new LiteralText("Practice Mode: " + (practiceMode ? "ON" : "OFF")),
+                buttonWidget -> {
+                    practiceMode = !practiceMode;
+                    buttonWidget.setMessage(new LiteralText("Practice Mode: " + (practiceMode ? "ON" : "OFF")));
+                },
+                (button, matrices, mouseX, mouseY) -> {
+                    renderTooltip(matrices, new LiteralText("Practice Mode gives seeds that were previously used by other players, and "), mouseX, mouseY);
+                }
+        ));
+
+        // Info button
+        this.addButton(new ButtonWidget(
+                this.width / 2 + 3, this.height - 52, 150, 20,
+                new LiteralText("ⓘ Filter Info"),
+                buttonWidget -> client.openScreen(new LoadingInfoDocScreen(string -> client.openScreen(new DocumentScreen(new LiteralText("Filters Info"), string, () -> this.client.openScreen(
+                        new LoadingOnlineFiltersScreen(filterInfos -> client.openScreen(
+                                new OnlineFiltersScreen(filterInfos, getSelectedFilterIds(), practiceMode)
+                        ))
+                )))))
         ));
 
         // Local filters button
@@ -102,7 +126,7 @@ public class OnlineFiltersScreen extends Screen {
     private void refresh() {
         assert client != null;
         client.openScreen(new LoadingOnlineFiltersScreen(
-                filterInfos -> client.openScreen(new OnlineFiltersScreen(filterInfos, getSelectedFilterIds())),
+                filterInfos -> client.openScreen(new OnlineFiltersScreen(filterInfos, getSelectedFilterIds(), practiceMode)),
                 true
         ));
     }
@@ -121,6 +145,7 @@ public class OnlineFiltersScreen extends Screen {
         } else {
             config.selectedOnlineFilterName = null;
         }
+        config.practiceMode = practiceMode;
         client.openScreen(new ConfigScreen());
         FSGModConfig.trySave();
     }

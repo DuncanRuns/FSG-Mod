@@ -96,8 +96,7 @@ public class ConfigScreen extends Screen {
 
     private void openOnlineFiltersScreen() {
         assert client != null;
-        client.openScreen(new LoadingOnlineFiltersScreen(filterInfos ->
-                client.openScreen(new OnlineFiltersScreen(filterInfos, FSGModConfig.getInstance().selectedOnlineFilters))
+        client.openScreen(new LoadingOnlineFiltersScreen(filterInfos -> client.openScreen(new OnlineFiltersScreen(filterInfos))
         ));
     }
 

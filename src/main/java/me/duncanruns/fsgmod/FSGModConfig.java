@@ -18,6 +18,7 @@ public class FSGModConfig {
 
     public Set<String> selectedOnlineFilters = new HashSet<>();
     public String selectedOnlineFilterName = null;
+    public boolean practiceMode = false;
 
     public static void trySave() {
         try {

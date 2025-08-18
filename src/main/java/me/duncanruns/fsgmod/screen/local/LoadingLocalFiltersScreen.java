@@ -50,7 +50,7 @@ public class LoadingLocalFiltersScreen extends Screen {
                 // Local filters screen
                 return new ButtonWidget(s.width / 2 - 100, s.height / 6 + 140, 200, 20, new LiteralText("Install an online filter instead..."), b ->
                         client.openScreen(new LoadingOnlineFiltersScreen(infos ->
-                                client.openScreen(new OnlineFiltersScreen(infos, FSGModConfig.getInstance().selectedOnlineFilters))
+                                client.openScreen(new OnlineFiltersScreen(infos))
                         ))
                 );
             }));

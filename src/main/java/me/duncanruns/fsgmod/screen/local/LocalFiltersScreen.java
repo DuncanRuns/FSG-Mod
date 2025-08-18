@@ -50,7 +50,7 @@ public class LocalFiltersScreen extends Screen {
                 new LiteralText("Install an online filter..."),
                 b -> client.openScreen(
                         new LoadingOnlineFiltersScreen(filterInfos ->
-                                client.openScreen(new OnlineFiltersScreen(filterInfos, FSGModConfig.getInstance().selectedOnlineFilters)))
+                                client.openScreen(new OnlineFiltersScreen(filterInfos)))
                 )
         )).active = (os == Util.OperatingSystem.WINDOWS || os == Util.OperatingSystem.LINUX || os == Util.OperatingSystem.OSX);
 
