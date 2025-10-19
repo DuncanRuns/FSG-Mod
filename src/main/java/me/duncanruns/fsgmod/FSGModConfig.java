@@ -19,6 +19,8 @@ public class FSGModConfig {
     public Set<String> selectedOnlineFilters = new HashSet<>();
     public String selectedOnlineFilterName = null;
     public boolean practiceMode = false;
+    // 这个全局变量直接就控制了启动与否
+    public boolean activate = true;
 
     public static void trySave() {
         try {

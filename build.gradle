@@ -13,8 +13,12 @@ version = "${project.mod_version}+MC${project.minecraft_version}"
 group = project.maven_group
 
 repositories {
+    maven {
+        url = uri("https://repository.hanbings.io/proxy")
+    }
     maven { url = "https://maven.bawnorton.com/releases" }
-    mavenCentral()
+    // mavenCentral()
+    maven { url = uri("https://maven.aliyun.com/repository/central") }
     maven { url 'https://jitpack.io' }
 }
 

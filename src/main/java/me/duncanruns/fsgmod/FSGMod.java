@@ -2,6 +2,7 @@ package me.duncanruns.fsgmod;
 
 import me.duncanruns.fsgmod.util.ArchUtil;
 import me.voidxwalker.autoreset.Atum;
+import me.voidxwalker.autoreset.api.seedprovider.SeedProvider;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Util;
@@ -19,6 +20,11 @@ public class FSGMod implements ModInitializer {
     public static final boolean DEBUG = false;
 
     public static boolean shouldRetime = true;
+    
+    public static final FSGSeedProvider FSG_PROVIDER = new FSGSeedProvider();
+    // 可能报错
+    // 在下面设置种子之前初始化这个可以拿到DEFAULT Provider
+    public static final SeedProvider ATUM_PROVIDER = Atum.getSeedProvider();
 
     public static void logError(String message, Throwable t) {
         LOGGER.error(message, t);
@@ -77,8 +83,11 @@ public class FSGMod implements ModInitializer {
                 logError("Failed to write local filter data!", e);
             }
         }
-
-        Atum.setSeedProvider(new FSGSeedProvider());
+        
+        // 这里重写可以引用FSGModConfig
+        if (FSGModConfig.getInstance().activate){
+            Atum.setSeedProvider(FSG_PROVIDER);
+        }
 
         FSGOnlineDB.getFilters().exceptionally(throwable -> {
             FSGMod.logError("Failed to load filters!", throwable);

@@ -5,6 +5,7 @@ import me.duncanruns.fsgmod.FSGModConfig;
 import me.duncanruns.fsgmod.LocalFilter;
 import me.duncanruns.fsgmod.screen.online.LoadingOnlineFiltersScreen;
 import me.duncanruns.fsgmod.screen.online.OnlineFiltersScreen;
+import me.voidxwalker.autoreset.Atum;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
@@ -15,11 +16,13 @@ import net.minecraft.util.Util;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class ConfigScreen extends Screen {
     private String installedFilterText;
     private int y;
     private ButtonWidget uninstallButton = null;
+    private boolean activate = FSGModConfig.getInstance().activate;
 
     public ConfigScreen() {
         super(new LiteralText("FSG Mod Config"));
@@ -69,6 +72,9 @@ public class ConfigScreen extends Screen {
                 Util.getOperatingSystem().open(LocalFilter.getFsgDir().toFile());
             }
         }));
+        y += 21;
+        // 初始化渲染就直接Activate
+        addButton(new ButtonWidget(width / 2 - 100, y + 24, 200, 20, new LiteralText("Activate: " + activate), this::switchActivate));
         y += 25;
         if (online) return;
         uninstallButton = addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Uninstall Filter"), b -> {
@@ -90,7 +96,12 @@ public class ConfigScreen extends Screen {
     private void initFilterNotInstalled(MinecraftClient client, int width) {
         installedFilterText = "No filter selected!";
         y += 21;
+        // 这里是主页面的开启的选项，我们在下面加一个配置
         addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Select Filter..."), b -> openOnlineFiltersScreen()));
+        y += 14;
+        y += 21;
+        // 初始化渲染就直接Activate
+        addButton(new ButtonWidget(width / 2 - 100, y, 200, 20, new LiteralText("Activate: " + activate), this::switchActivate));
         y += 14;
     }
 
@@ -98,6 +109,18 @@ public class ConfigScreen extends Screen {
         assert client != null;
         client.openScreen(new LoadingOnlineFiltersScreen(filterInfos -> client.openScreen(new OnlineFiltersScreen(filterInfos))
         ));
+    }
+    
+    private void switchActivate(ButtonWidget buttonWidget){
+        // 不用判断值 点击直接取反
+        FSGModConfig.getInstance().activate = !activate;
+        activate = !activate;
+        FSGModConfig.trySave();
+        buttonWidget.setMessage(new LiteralText("Activate: " + activate));
+        // 重写Atum的种子提供
+         // 必须先停止当前的种子生成 还是怎么说
+        Atum.stopRunning();
+        Atum.setSeedProvider(activate ? FSGMod.FSG_PROVIDER : FSGMod.ATUM_PROVIDER);
     }
 
     @Override
