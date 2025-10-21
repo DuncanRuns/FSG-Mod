@@ -24,7 +24,7 @@ public class FSGOnlineDB {
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static JsonArray cachedFilters = null;
     private static String urlToUse = null;
-    private static Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
 
     private static String getBaseURL() {
         if (urlToUse != null) return urlToUse;
