@@ -8,9 +8,14 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 
+import java.util.Arrays;
+
 public class TokenCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("fsgtoken").executes(TokenCommand::execute));
+        Arrays.stream(new String[]{"fsgtoken", "token"})
+                .map(CommandManager::literal)
+                .map(l -> l.executes(TokenCommand::execute))
+                .forEach(dispatcher::register);
     }
 
     private static int execute(CommandContext<ServerCommandSource> context) {
