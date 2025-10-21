@@ -12,7 +12,7 @@ public class FilteringScreen extends AtumWaitingScreen {
 
     public FilteringScreen() {
         super(new LiteralText("Filtering Seeds..."));
-        displayText = LocalFilter.isInstalled() ? "Filtering Seed..." : "Requesting Seed...";
+        displayText = LocalFilter.isInstalled() ? "Filtering seed..." : "Requesting seed from filteredseed.com...";
     }
 
     @Override
