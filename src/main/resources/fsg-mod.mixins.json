@@ -15,6 +15,6 @@
   "mixins": [
     "CommandManagerMixin",
     "LevelPropertiesMixin",
-    "speedrunigt.InGameTimerMixin"
+    "speedrunigt.RunCategoriesMixin"
   ]
 }
