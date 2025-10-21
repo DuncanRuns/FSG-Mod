@@ -17,10 +17,10 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.Thread.sleep;
 
-// Class to interact with fsgonlinedb.duncanruns.xyz
+// Class to interact with filteredseed.com
 public class FSGOnlineDB {
-    private static final String HTTPS_BASE_URL = "https://fsgonlinedb.duncanruns.xyz";
-    private static final String HTTP_BASE_URL = "http://fsgonlinedb.duncanruns.xyz:8080";
+    private static final String HTTPS_BASE_URL = "https://filteredseed.com";
+    private static final String HTTP_BASE_URL = "http://filteredseed.com:8080";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static JsonArray cachedFilters = null;
     private static String urlToUse = null;
