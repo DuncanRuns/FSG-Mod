@@ -5,16 +5,16 @@
       "supports": [
         "1.16.1"
       ],
-      "version": "4.1.0",
+      "version": "4.1.1",
       "maxGenerating": 1,
       "runIsRetimed": true,
       "download": {
-        "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.win.116.zip",
-        "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.lin.116.zip",
-        "mac": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.mac.116.zip",
-        "winarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.win.116.zip",
-        "linarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.lin.116.zip",
-        "macarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.mac.116.zip"
+        "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.win.116.zip",
+        "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.lin.116.zip",
+        "mac": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.mac.116.zip",
+        "winarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.win.116.zip",
+        "linarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.lin.116.zip",
+        "macarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.mac.116.zip"
       }
     },
     {
@@ -22,16 +22,16 @@
       "supports": [
         "1.15.2"
       ],
-      "version": "4.1.0",
+      "version": "4.1.1",
       "maxGenerating": 1,
       "runIsRetimed": true,
       "download": {
-        "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.win.115.zip",
-        "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.lin.115.zip",
-        "mac": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.mac.115.zip",
-        "winarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.win.115.zip",
-        "linarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.lin.115.zip",
-        "macarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.0/ZigSeedGlitchless.v4.1.0.mac.115.zip"
+        "win": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.win.115.zip",
+        "lin": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.lin.115.zip",
+        "mac": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.mac.115.zip",
+        "winarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.win.115.zip",
+        "linarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.lin.115.zip",
+        "macarm": "https://github.com/DuncanRuns/ZigSeedGlitchless/releases/download/v4.1.1/ZigSeedGlitchless.v4.1.1.mac.115.zip"
       }
     },
     {
@@ -68,4 +68,5 @@
     }
   ]
 }
+
 
