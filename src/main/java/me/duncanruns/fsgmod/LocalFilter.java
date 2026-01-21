@@ -95,18 +95,21 @@ public final class LocalFilter {
     private static FSGFilterResult runInternal() throws IOException, InterruptedException {
         String command = getRunPath().toString();
 
-        Process process = new ProcessBuilder(command).directory(getFsgDir().toFile()).start();
+        ProcessBuilder processBuilder;
+        if (OPERATING_SYSTEM.equals(Util.OperatingSystem.WINDOWS)) {
+            processBuilder = new ProcessBuilder(command);
+        } else {
+            processBuilder = new ProcessBuilder("/bin/bash", "-l", command);
+        }
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.directory(getFsgDir().toFile()).start();
 
         List<String> lines = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String readL;
 
         while ((readL = reader.readLine()) != null) {
             lines.add(readL.trim());
-            if ((readL = errReader.readLine()) != null) {
-                lines.add(readL.trim());
-            }
         }
 
         process.waitFor();

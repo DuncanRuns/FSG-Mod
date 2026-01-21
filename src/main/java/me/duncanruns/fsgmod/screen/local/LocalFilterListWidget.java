@@ -61,7 +61,7 @@ public class LocalFilterListWidget extends ElementListWidget<LocalFilterListWidg
                                 FileUtil.writeString(LocalFilter.getFsgDir().resolve("run.bat"), filter.runBatScript);
                             }
                             if (filter.runShScript != null) {
-                                FileUtil.writeString(LocalFilter.getFsgDir().resolve("run.sh"), filter.runShScript);
+                                FileUtil.writeStringWithUnixLineEndings(LocalFilter.getFsgDir().resolve("run.sh"), filter.runShScript);
                             }
                             FSGMod.setAllInFolderExecutable();
                             FSGModConfig config = FSGModConfig.getInstance();
