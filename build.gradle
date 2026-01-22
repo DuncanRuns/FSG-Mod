@@ -50,6 +50,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+loom {
+    decompilerOptions.named("vineflower") {
+        options.put("mark-corresponding-synthetics", "1") // Adds names to lambdas - useful for mixins
+    }
+}
+
 jar {
     inputs.property "archivesName", project.base.archivesName
 
