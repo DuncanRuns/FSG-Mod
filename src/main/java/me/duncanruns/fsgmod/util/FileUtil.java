@@ -15,6 +15,13 @@ public final class FileUtil {
         writer.close();
     }
 
+    public static void writeStringWithUnixLineEndings(Path path, String string) throws IOException {
+        String normalized = string.replace("\r\n", "\n").replace("\r", "\n");
+        FileWriter writer = new FileWriter(path.toFile());
+        writer.write(normalized);
+        writer.close();
+    }
+
     public static String readString(Path path) throws IOException {
         return new String(Files.readAllBytes(path));
     }
