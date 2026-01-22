@@ -1,6 +1,7 @@
 package me.duncanruns.fsgmod;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.duncanruns.fsgmod.util.GrabUtil;
 import me.voidxwalker.autoreset.Atum;
@@ -25,6 +26,7 @@ public class FSGOnlineDB {
     private static JsonArray cachedFilters = null;
     private static String urlToUse = null;
     private static final Random RANDOM = new Random();
+    private static final Map<String, Queue<String>> practiceSeedCache = Collections.synchronizedMap(new HashMap<>());
 
     private static String getBaseURL() {
         if (urlToUse != null) return urlToUse;
@@ -263,15 +265,19 @@ public class FSGOnlineDB {
         }
         List<String> filterCodesList = new ArrayList<>(filterCodes);
         String filterCode = filterCodes.size() == 1 ? filterCodesList.get(0) : filterCodesList.get(RANDOM.nextInt(filterCodes.size()));
+        Queue<String> cache = practiceSeedCache.computeIfAbsent(filterCode, k -> new LinkedList<>());
+        if (!cache.isEmpty()) {
+            return CompletableFuture.completedFuture(new SeedData(cache.poll(), null, filterCode));
+        }
         return CompletableFuture.supplyAsync(() -> {
             try {
-                JsonObject jsonObject = GrabUtil.grabJson(getBaseURL() + "/getRandomUsedSeed/" + filterCode);
+                JsonObject jsonObject = GrabUtil.grabJson(getBaseURL() + "/getRandomUsedSeeds/" + filterCode + "/50");
                 if ("SUCCESS".equals(jsonObject.get("type").getAsString())) {
-                    return new SeedData(
-                            jsonObject.get("seed").getAsString(),
-                            null,
-                            filterCode
-                    );
+                    JsonArray seeds = jsonObject.getAsJsonArray("seeds");
+                    for (JsonElement seed : seeds) {
+                        cache.add(seed.getAsString());
+                    }
+                    return new SeedData(cache.poll(), null, filterCode);
                 } else {
                     throw new IOException("Error from fsgonlinedb: " + jsonObject.get("errorMessage").getAsString());
                 }
