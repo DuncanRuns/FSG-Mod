@@ -20,8 +20,9 @@ import static java.lang.Thread.sleep;
 
 // Class to interact with filteredseed.com
 public class FSGOnlineDB {
-    private static final String HTTPS_BASE_URL = "https://filteredseed.com";
-    private static final String HTTP_BASE_URL = "http://filteredseed.com:8080";
+    private static final String DOMAIN = "filteredseed.com";
+    private static final String HTTPS_BASE_URL = "https://" + DOMAIN;
+    private static final String HTTP_BASE_URL = "http://" + DOMAIN + ":8080";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static JsonArray cachedFilters = null;
     private static String urlToUse = null;
@@ -37,23 +38,23 @@ public class FSGOnlineDB {
                 urlToUse = HTTPS_BASE_URL;
                 return urlToUse;
             } catch (Exception e) {
-                FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB (https), retrying...");
+                FSGMod.LOGGER.warn("Failed to connect to " + DOMAIN + " (https), retrying...");
             }
         }
-        FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB with https, falling back to http.");
+        FSGMod.LOGGER.warn("Failed to connect to " + DOMAIN + " with https, falling back to http.");
 
         for (int i = 0; i < 3; i++) {
             try {
                 GrabUtil.grab(HTTP_BASE_URL);
-                FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB with https, falling back to http.");
+                FSGMod.LOGGER.warn("Failed to connect to " + DOMAIN + " with https, falling back to http.");
                 urlToUse = HTTP_BASE_URL;
                 return urlToUse;
             } catch (IOException ex) {
-                FSGMod.LOGGER.warn("Failed to connect to FSGOnlineDB (http), retrying...");
+                FSGMod.LOGGER.warn("Failed to connect to " + DOMAIN + " (http), retrying...");
             }
         }
 
-        throw new RuntimeException("Failed to connect to FSGOnlineDB, although this error should not happen.");
+        throw new RuntimeException("Failed to connect to " + DOMAIN + ", although this error should not happen.");
     }
 
     /**
@@ -81,7 +82,7 @@ public class FSGOnlineDB {
                 } else if ("COOLDOWN".equals(type)) {
                     throw new CooldownException(response.get("cooldown").getAsLong());
                 } else {
-                    throw new IOException("Error from fsgonlinedb: " + response.get("errorMessage").getAsString());
+                    throw new IOException("Error from " + DOMAIN + ": " + response.get("errorMessage").getAsString());
                 }
             } catch (IOException e) {
                 urlToUse = null;
@@ -122,7 +123,7 @@ public class FSGOnlineDB {
                 } else if ("COOLDOWN".equals(type)) {
                     throw new CooldownException(response.get("cooldown").getAsLong());
                 } else {
-                    throw new IOException("Error from fsgonlinedb: " + response.get("errorMessage").getAsString());
+                    throw new IOException("Error from " + DOMAIN + ": " + response.get("errorMessage").getAsString());
                 }
             } catch (IOException e) {
                 urlToUse = null;
@@ -150,7 +151,7 @@ public class FSGOnlineDB {
 
                 JsonObject response = GrabUtil.grabJson(getBaseURL() + "/filters");
                 if (!"SUCCESS".equals(response.get("type").getAsString())) {
-                    throw new IOException("Error from fsgonlinedb: " + response.get("errorMessage").getAsString());
+                    throw new IOException("Error from " + DOMAIN + ": " + response.get("errorMessage").getAsString());
                 }
 
                 cachedFilters = response.getAsJsonArray("filters");
@@ -279,7 +280,7 @@ public class FSGOnlineDB {
                     }
                     return new SeedData(cache.poll(), null, filterCode);
                 } else {
-                    throw new IOException("Error from fsgonlinedb: " + jsonObject.get("errorMessage").getAsString());
+                    throw new IOException("Error from " + DOMAIN + ": " + jsonObject.get("errorMessage").getAsString());
                 }
             } catch (Exception e) {
                 urlToUse = null;
