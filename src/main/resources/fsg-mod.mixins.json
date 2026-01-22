@@ -15,6 +15,7 @@
   "mixins": [
     "CommandManagerMixin",
     "LevelPropertiesMixin",
+    "SeedCommandMixin",
     "speedrunigt.RunCategoriesMixin"
   ]
 }

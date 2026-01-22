@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import me.duncanruns.fsgmod.mixinint.TokenHolder;
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.SeedCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
@@ -14,14 +15,14 @@ public class TokenCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         Arrays.stream(new String[]{"fsgtoken", "token"})
                 .map(CommandManager::literal)
-                .map(l -> l.executes(TokenCommand::execute))
+                .map(l -> l.executes(c -> execute(c, true)))
                 .forEach(dispatcher::register);
     }
 
-    private static int execute(CommandContext<ServerCommandSource> context) {
+    public static int execute(CommandContext<ServerCommandSource> context, boolean reportFailure) {
         String token = ((TokenHolder) context.getSource().getMinecraftServer().getSaveProperties()).fsgmod$getToken();
         if (token == null) {
-            context.getSource().sendError(new LiteralText("This world does not have a token."));
+            if (reportFailure) context.getSource().sendError(new LiteralText("This world does not have a token."));
             return 0;
         }
         context.getSource().sendFeedback(
