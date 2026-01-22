@@ -8,7 +8,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-archivesBaseName = project.archives_base_name
 version = "${project.mod_version}+MC${project.minecraft_version}"
 group = project.maven_group
 
@@ -52,8 +51,10 @@ java {
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
+
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${inputs.properties.archivesName}"}
     }
 }
 
