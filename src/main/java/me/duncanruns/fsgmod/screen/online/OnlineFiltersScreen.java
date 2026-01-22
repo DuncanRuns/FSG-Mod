@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
@@ -80,17 +81,18 @@ public class OnlineFiltersScreen extends Screen {
         // Practice mode button
         addButton(new ButtonWidget(
                 this.width / 2 - 153, this.height - 52, 150, 20,
-                new LiteralText("Practice Mode: " + (practiceMode ? "ON" : "OFF")),
+                getPracticeModeText(),
                 buttonWidget -> {
                     practiceMode = !practiceMode;
-                    buttonWidget.setMessage(new LiteralText("Practice Mode: " + (practiceMode ? "ON" : "OFF")));
+                    buttonWidget.setMessage(getPracticeModeText());
                 },
                 (button, matrices, mouseX, mouseY) -> renderTooltip(matrices, Stream.of(
-                        "Practice Mode gives seeds that were previously",
-                        "used by other players, and does not give a token,",
-                        "meaning the runs are unverifiable. It also removes",
-                        "the cooldown on seeds, and allows you to generate",
-                        "as many seeds as you want with SeedQueue."
+                        "Practice Mode removes the cooldown on seeds, and",
+                        "allows you to generate as many seeds as you want",
+                        "with Seedqueue. However, the seeds are previously",
+                        "used by other players and the runs are not verifiable",
+                        "for speedrun.com/fsg. Turn this option OFF if you",
+                        "are going for a leaderboard time."
                 ).map(LiteralText::new).collect(Collectors.toList()), mouseX, mouseY)
         ));
 
@@ -126,6 +128,10 @@ public class OnlineFiltersScreen extends Screen {
                 ScreenTexts.CANCEL,
                 buttonWidget -> client.openScreen(new ConfigScreen())
         ));
+    }
+
+    private @NotNull Text getPracticeModeText() {
+        return new LiteralText("Practice Mode: " + (practiceMode ? "ON" : "OFF")).formatted(Formatting.LIGHT_PURPLE);
     }
 
     private void refresh() {
